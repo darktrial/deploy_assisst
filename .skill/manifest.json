@@ -79,7 +79,7 @@
         ".gitignore",
         ".graphifyignore"
       ],
-      "estimated_tokens": 7472,
+      "estimated_tokens": 7808,
       "load_condition": "on_demand"
     },
     {
@@ -181,7 +181,7 @@
     },
     {
       "path": ".skill/notes/version_history.md",
-      "estimated_tokens": 2212,
+      "estimated_tokens": 2334,
       "load_condition": "on_demand"
     },
     {
@@ -240,6 +240,6 @@
       "load_condition": "on_demand"
     }
   ],
-  "total_estimated_tokens": 131567,
+  "total_estimated_tokens": 132025,
   "always_load_estimated_tokens": 2469
 }

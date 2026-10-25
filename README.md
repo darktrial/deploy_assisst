@@ -1,55 +1,111 @@
-# GT 一鍵出征
+# GT One-Click Dispatch
 
-這是獨立的 Chrome 擴充功能，與原本「GT 採集助手」分開安裝。
+A Chrome extension for resource gathering in GTarcade's Game of Thrones. Select a resource point in the game, then press **F8** or click the extension icon to apply **army preset slot 1**, dispatch troops, and use march speedups until the estimated remaining travel time is **1 second or less**.
 
-## 1.2.0：加速至剩餘 ≤ 1 秒
+Current version: **1.2.0**. This extension is installed separately from the legacy gathering assistant in `chrome-extension/`. The extension name and interface currently remain in Traditional Chinese.
 
-取消一鍵版兩個道具上限，每次使用一個 10303，確認庫存及行軍加速回應後再判斷是否繼續。剩餘秒數以遊戲回傳的 `finish - start - speedupSeconds` 減去首次觀察該行軍後的單調經過時間；不依賴電腦日期。此估計會保留首次觀察前的通訊延遲，可能比遊戲倒數稍長；只在估計 ≤ 1 秒或已抵達時正常停止，庫存耗盡則等待自然抵達。無效時間、回應逾時或停止鍵會中止後續動作，不重送指令。
+## Requirements
 
-## 1.1.0：F8 診斷與免 debugger 執行
+- Chrome 125 or later.
+- Supported game build: `2.81.0_c2cae856e7`, with the exact WASM fingerprint in `native-profile.json`.
+- An available army preset in slot 1. Its name does not have to be “Spear.”
+- A manually selected, unoccupied resource point for ordinary gathering.
 
-主版改用 Chrome scripting API，不再要求 debugger 權限或顯示由本助手觸發的偵錯連線提示。出征後改用精簡行軍／庫存輪詢，保留完整版本指紋、目標、方法及道具庫存檢查；尚未量測實機 FPS 或端到端速度差異。
+Game updates that change the verified build require a new, validated native profile before the extension can run.
 
-F8 按下會顯示收到／失敗提示；keydown 被其他腳本吃掉時，放開按鍵也可觸發，正常按下＋放開只執行一次。更新後會嘗試在已開啟遊戲注入新監聽器，也可右鍵圖示 → 選項 →「修復 F8（不出征）」。仍無提示時，重新整理遊戲並確認 Fn 鍵設定及網站存取權限。舊版「GT 採集助手」的觀察功能仍需要 debugger。
+## Installation and updates
 
-## 安裝與操作
+1. Open `chrome://extensions` and enable **Developer mode**.
+2. Click **Load unpacked** and select this repository's root folder, `deploy_assisst`, which contains `manifest.json`. Do not select the ZIP or the `chrome-extension/` subfolder.
+3. Pin **GT 一鍵出征** (GT One-Click Dispatch) to the Chrome toolbar.
+4. Open or refresh the game page.
 
-1. 在 Chrome 開啟 `chrome://extensions`，開啟「開發人員模式」。
-2. 按「載入未封裝項目」，選擇 `<repo-root>（deploy_assisst 資料夾）` 資料夾（不是 ZIP）。
-3. 從 Chrome 的擴充功能選單，將「GT 一鍵出征」釘選到工具列。
-4. 回到 GTarcade 遊戲，手動選好空的資源點，停在採集選單；也可以停在該資源點的出征面板。
-5. 按單鍵 **F8** 或點一次「GT 一鍵出征」圖示。版本與狀態檢查完成後立即套用第 **1** 組預設列隊、出征、對本次新行軍逐次使用道具 10303，直到保守估計行軍剩餘時間 **≤ 1 秒**，沒有固定倒數。第一組的名稱不必叫 Spear。
-6. 圖示顯示綠色 ✓ 才表示已讀到「開始採集」。若出現橘色 !，右鍵圖示 →「選項」，查看執行紀錄。
+After updating the source files, click **Reload** on the extension's card in `chrome://extensions`, then refresh the game page to load the updated F8 listener.
 
-Alt+Shift+X 或紀錄頁「停止後續操作」可中止後續動作。若快捷鍵與其他擴充功能衝突，可在 `chrome://extensions/shortcuts` 設定。重複點圖示不會排入第二次出征。
+If an older installation points to the former `chrome-one-click` directory, load this repository root instead. Extension storage is not guaranteed to migrate between installation paths.
 
-F8 是遊戲頁面快捷鍵：請先點一下遊戲讓它取得焦點。長按不會重複觸發，在網頁輸入框或可編輯區域中會忽略；Unity 畫布內自繪的聊天輸入框無法由網頁辨識，聊天時請勿按 F8。更新此版本時，請先在擴充功能頁重新載入擴充功能，再重新整理遊戲頁面，讓 F8 監聽程式載入。原有 Alt+Shift+G 仍可使用；F8 不受 Chrome 擴充功能快捷鍵設定頁控制。
+## Usage
 
-## 行為與限制
+1. Select an available resource point and leave its gathering menu or dispatch panel open.
+2. Click inside the game to give it keyboard focus.
+3. Press **F8** once, or click the extension icon.
+4. The extension checks the game version and state, selects preset slot 1, dispatches once, and correlates the newly created march with your target.
+5. It uses speedup item **10303**, one item at a time, checking the inventory and march response before continuing.
+6. A green **✓** means the same march has reached the target and started gathering. An orange **!** means you should open the extension's **Options** page to inspect the execution log.
 
-- 使用遊戲原有函式，不靠座標。只支援一般資源採集，不支援攻打玩家或其他戰鬥目標。
-- 保留原有遊戲檢查與提示，遇到額外確認視窗會停止，不自動確認。
-- 有 0 或 1 個道具時仍可出征，只使用現有數量。已抵達則不再使用道具。
-- 不再限制兩個道具；庫存用完就停止加速；加速後最多觀察兩分鐘。逾時會明確標示未確認抵達，軍隊仍會繼續行軍。
-- 每個指令只送一次；出征或加速回應逾時不重送。出錯後請先檢查遊戲中的軍隊狀態再重新操作。
-- 停止不撤軍、不返還道具。執行時請保留遊戲分頁，勿同時操作行軍、切換目標或啟用其他助手的通訊觀察。
-- 僅接受遊戲版本 `2.81.0_c2cae856e7` 的確切 WASM 指紋。遊戲更新後會停止，需更新原生入口設定。
-- 紀錄僅存在 Chrome session storage，不記錄登入網址、封包或認證資料。
+There is no fixed startup countdown. Repeated clicks while a run is active do not queue another dispatch.
 
-## 驗證範圍
+| Control | Action |
+| --- | --- |
+| F8 | Start from the focused game page |
+| Extension toolbar icon | Start on the game tab |
+| Alt+Shift+G | Alternative start shortcut |
+| Alt+Shift+X | Stop subsequent actions |
+| Stop button on the Options page | Stop subsequent actions |
 
-原生入口沿用已實際驗證的第一組 Spear、出征、兩次加速及開始採集流程，紀錄位於 `research/capture/native-live-test-2026-10-25.json`。使用者已回報 v1.1.0 可使用。v1.2.0 的新加速門檻僅經離線測試，本次未實機出征或消耗道具。
+Stopping does not recall dispatched troops or refund consumed items. Chrome command shortcuts can be changed at `chrome://extensions/shortcuts`; the page-level F8 binding is not controlled by that page.
 
-測試：`node tools/verify.mjs`
+## Speedup behavior
 
-## 專案目錄與開發
+Version 1.2.0 removes the previous two-item limit. Each successful speedup is followed by another state check. Speedups stop when:
 
-本目錄是正式專案根目錄，原本 `chrome-one-click` 的來源已合併至此。主版載入本目錄；舊版「GT 採集助手」載入 `chrome-extension/`。如果 Chrome 先前使用舊路徑，請從新路徑重新「載入未封裝項目」；不要假定原擴充功能的儲存資料會自動搬移。
+- The conservative remaining-time estimate is **≤ 1 second**.
+- The march has finished traveling or started gathering.
+- The available speedup inventory reaches zero.
 
-- [AGENTS.md](AGENTS.md)：專案開發規範與驗證命令。
-- [.skill/SKILL.md](.skill/SKILL.md)：架構、測試、建置、Graphify 及錯誤處理入口。
-- `research/`：研究程式及保留的本機證據；原始通訊檔位於 `research/capture/original/`。
-- `graphify-out/graph.json`、[圖譜報告](graphify-out/GRAPH_REPORT.md)：本機 AST 關係索引；動態橋接的缺漏見技能文件。
-- `dist/`：由 `python tools/package.py` 產生兩個 ZIP；不包含研究資料、測試或技能文件。
+The estimate uses the game's `finish - start - speedupSeconds`, minus monotonic elapsed time since the extension first observed the new march. It does not depend on the computer's date or time zone. Initial observation latency is not subtracted, so the estimate can be slightly longer than the game's displayed countdown.
 
-Graphify 套件與研究 Python 依賴位於上一層工作區，具體路徑與可覆寫環境變數見 [.skill/references/build-environment.md](.skill/references/build-environment.md)。
+Zero or one available item does not prevent dispatch. If items run out, troops continue traveling normally. After speedups stop, the extension watches for arrival for up to two minutes. A timeout reports that arrival was not confirmed; it does not recall the march or send more items.
+
+Invalid timing data, an unexpected state, a blocking game dialog, cancellation, or a missing acknowledgement stops further actions. Dispatch and speedup commands are never automatically resent after a timeout. Check the game's troop state before starting another run after an error.
+
+## F8 troubleshooting
+
+F8 displays a brief acknowledgement or error message. A key-release fallback can trigger the action when another script intercepts key-down; a normal press and release still starts only one run. Holding the key does not repeatedly dispatch.
+
+If F8 has no visible effect:
+
+1. Click the game canvas and try again. Some keyboards require **Fn+F8**.
+2. Right-click the extension icon, open **Options**, and click **修復 F8（不出征）** (“Repair F8 — no dispatch”). This reinstalls the listener without dispatching troops.
+3. Reload the extension, refresh the game page, and check its site access permissions.
+
+F8 is ignored in normal web input fields and editable elements. Unity's canvas-rendered chat fields cannot be reliably identified by this check, so avoid pressing F8 while chatting.
+
+## Execution and limitations
+
+- Uses the game's original native methods, without screen coordinates or packet replay.
+- Supports ordinary resource gathering only, not attacks on players or other combat targets.
+- Preserves WASM fingerprint, method signature, target, troop, inventory, and march identity checks. Additional confirmation dialogs are not accepted automatically.
+- Since v1.1.0, the main extension uses Chrome's scripting API and does not request the debugger permission or attach a debugger. Post-dispatch polling reads only march, inventory, and blocking-dialog state. No FPS or end-to-end performance improvement has been measured.
+- The legacy assistant's traffic observation feature still uses the debugger API.
+- Keep the game tab open during execution. Avoid simultaneously changing the target, operating the march manually, or enabling another assistant's traffic observer.
+- Main-extension logs are stored in Chrome session storage and do not record login URLs, packets, or credentials.
+
+## Verification
+
+The latest automated verification passed **52 tests** and syntax checks for **21 JavaScript files**: 24 tests for the main extension and 28 for the legacy assistant.
+
+An earlier live test verified native preset selection, dispatch, two speedups, and the transition to gathering. Its summary is retained in `research/capture/native-live-test-2026-10-25.json`. The user has confirmed that v1.1.0 works. The v1.2.0 remaining-time threshold has been tested offline; it has not yet been verified through a new live dispatch with item consumption.
+
+Run verification and packaging from the repository root:
+
+```powershell
+node tools/verify.mjs
+python tools/package.py
+```
+
+Verification records results and source hashes in `.skill/notes/verification.json`. Packaging creates `dist/gt-one-click.zip` and `dist/gt-gather-helper.zip` using explicit file allowlists. Research captures, tests, and skill documents are excluded from the packages. No npm install, transpiler, or bundler is required.
+
+## Repository layout
+
+| Path | Purpose |
+| --- | --- |
+| Root JS/MJS files, `manifest.json`, and status page | Main One-Click Dispatch extension |
+| `chrome-extension/` | Separately installable legacy gathering assistant, including traffic observation and coordinate mode |
+| `research/` | Research scripts and local evidence; raw captures are excluded from Git except for the explicitly retained live-test summary |
+| `tools/` | Verification and packaging scripts |
+| `.skill/` | Module guidance, architecture, testing references, and maintenance evidence |
+| `graphify-out/` | Local AST relationship graph and report |
+| `dist/` | Generated ZIP packages, excluded from Git |
+
+Read [AGENTS.md](AGENTS.md) and the [module skill](.skill/SKILL.md) before development. The [Graphify report](graphify-out/GRAPH_REPORT.md) describes static relationships; dynamic extension messaging and native calls require source-level verification. Graphify and research Python dependencies reside in the parent workspace; see the [build environment reference](.skill/references/build-environment.md) for paths and environment overrides.
