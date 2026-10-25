@@ -102,5 +102,5 @@ test('capture failures and persistence errors remain visible',async()=>{
   o.persist=async()=>{throw new Error('quota');};
   await o.stop();
   assert.ok(o.record.events.some(e=>e.kind==='capture_error'));
-  assert.match(o.status().error,/暫存/); assert.equal(o.status().hasRecord,true);
+  assert.match(o.status().error,/save the session record/); assert.equal(o.status().hasRecord,true);
 });

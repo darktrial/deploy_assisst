@@ -1,8 +1,8 @@
 {
-  "name": "Army preset 1（請校準）",
+  "name": "Army preset 1 (calibration required)",
   "steps": [
     {
-      "name": "選建築物（手動，已停用）",
+      "name": "Select building (manual, disabled)",
       "enabled": false,
       "kind": "normal",
       "type": "click",
@@ -14,7 +14,7 @@
       "viewport": null
     },
     {
-      "name": "錄製步驟 2（待確認）",
+      "name": "Recorded step 2 (unconfirmed)",
       "enabled": true,
       "kind": "normal",
       "type": "click",
@@ -26,7 +26,7 @@
       "viewport": null
     },
     {
-      "name": "錄製步驟 3（待確認）",
+      "name": "Recorded step 3 (unconfirmed)",
       "enabled": true,
       "kind": "normal",
       "type": "click",
@@ -38,7 +38,7 @@
       "viewport": null
     },
     {
-      "name": "錄製步驟 4（待確認）",
+      "name": "Recorded step 4 (unconfirmed)",
       "enabled": true,
       "kind": "normal",
       "type": "click",
@@ -50,7 +50,7 @@
       "viewport": null
     },
     {
-      "name": "錄製步驟 5（待確認）",
+      "name": "Recorded step 5 (unconfirmed)",
       "enabled": true,
       "kind": "normal",
       "type": "click",
@@ -62,7 +62,7 @@
       "viewport": null
     },
     {
-      "name": "加速道具 1",
+      "name": "Speedup item 1",
       "enabled": true,
       "kind": "boost",
       "type": "doubleClick",
@@ -74,7 +74,7 @@
       "viewport": null
     },
     {
-      "name": "加速道具 2",
+      "name": "Speedup item 2",
       "enabled": true,
       "kind": "boost",
       "type": "doubleClick",

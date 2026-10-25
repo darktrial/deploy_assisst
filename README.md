@@ -2,7 +2,7 @@
 
 A Chrome extension for resource gathering in GTarcade's Game of Thrones. Select a resource point in the game, then press **F8** or click the extension icon to apply **army preset slot 1**, dispatch troops, and use march speedups until the estimated remaining travel time is **1 second or less**.
 
-Current version: **1.2.0**. This extension is installed separately from the legacy gathering assistant in `chrome-extension/`. The extension name and interface currently remain in Traditional Chinese.
+Current version: **1.2.1**. This extension is installed separately from the legacy gathering assistant in `chrome-extension/`. Both extensions now use English names, interface labels, prompts, and error messages.
 
 ## Requirements
 
@@ -17,7 +17,7 @@ Game updates that change the verified build require a new, validated native prof
 
 1. Open `chrome://extensions` and enable **Developer mode**.
 2. Click **Load unpacked** and select this repository's root folder, `deploy_assisst`, which contains `manifest.json`. Do not select the ZIP or the `chrome-extension/` subfolder.
-3. Pin **GT 一鍵出征** (GT One-Click Dispatch) to the Chrome toolbar.
+3. Pin **GT One-Click Dispatch** to the Chrome toolbar.
 4. Open or refresh the game page.
 
 After updating the source files, click **Reload** on the extension's card in `chrome://extensions`, then refresh the game page to load the updated F8 listener.
@@ -66,7 +66,7 @@ F8 displays a brief acknowledgement or error message. A key-release fallback can
 If F8 has no visible effect:
 
 1. Click the game canvas and try again. Some keyboards require **Fn+F8**.
-2. Right-click the extension icon, open **Options**, and click **修復 F8（不出征）** (“Repair F8 — no dispatch”). This reinstalls the listener without dispatching troops.
+2. Right-click the extension icon, open **Options**, and click **Repair F8 (no dispatch)**. This reinstalls the listener without dispatching troops.
 3. Reload the extension, refresh the game page, and check its site access permissions.
 
 F8 is ignored in normal web input fields and editable elements. Unity's canvas-rendered chat fields cannot be reliably identified by this check, so avoid pressing F8 while chatting.

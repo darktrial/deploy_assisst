@@ -47,7 +47,7 @@ export class TrafficObserver {
       warnings:this.record?.warnings || []};
   }
   async start(tabId, includeBinary) {
-    if (['starting','recording','stopping'].includes(this.phase)) throw new Error('通訊觀察已在進行中。');
+    if (['starting','recording','stopping'].includes(this.phase)) throw new Error('Traffic observation is already running.');
     this.phase='starting'; this.tabId=tabId; this.startMs=this.now(); this.bytes=0; this.stage='baseline'; this.persistError=''; this.stopTask=null;
     this.requests.clear(); this.sockets.clear(); this.targets.clear(); this.pending.clear();
     this.counts={wsSent:0,wsReceived:0,httpRequests:0,httpResponses:0};
@@ -57,10 +57,10 @@ export class TrafficObserver {
       warnings:[], events:[]};
     try {
       await this.attach(tabId); this.attached=true;
-      if (this.phase !== 'starting') throw new Error('觀察連線已中斷。');
+      if (this.phase !== 'starting') throw new Error('Observation connection interrupted.');
       await this.enable({tabId});
-      if (this.phase !== 'starting') throw new Error('觀察連線已中斷。');
-      this.phase='recording'; this.mark('baseline','開始後先等待約 3 秒，再標記並操作。');
+      if (this.phase !== 'starting') throw new Error('Observation connection interrupted.');
+      this.phase='recording'; this.mark('baseline','Wait about 3 seconds after starting, then mark and perform an action.');
       if (this.phase==='recording') this.timer=setTimeout(()=>{ this.stop('time_limit'); },this.limits.durationMs);
       return this.status();
     } catch (error) { await this.stop('start_failed'); throw error; }
@@ -84,15 +84,15 @@ export class TrafficObserver {
     if (this.record && !this.record.warnings.includes(message)) this.record.warnings.push(message);
   }
   mark(stage, note='') {
-    if (this.phase !== 'recording') throw new Error('請先開始通訊觀察。');
-    if (!['baseline','preset','march','boost','done','custom'].includes(stage)) throw new Error('未知標記。');
+    if (this.phase !== 'recording') throw new Error('Start traffic observation first.');
+    if (!['baseline','preset','march','boost','done','custom'].includes(stage)) throw new Error('Unknown marker.');
     this.stage=stage;
     this.add({kind:'marker',label:stage,note:safeText(note).slice(0,300)});
     return this.status();
   }
   track(promise) {
     const record=this.record;
-    const task=Promise.resolve(promise).catch(()=>{ if (record===this.record) this.warn('部分子目標或回應內容無法擷取；請檢查事件中的 capture_error。'); }).finally(()=>this.pending.delete(task));
+    const task=Promise.resolve(promise).catch(()=>{ if (record===this.record) this.warn('Some child targets or response bodies could not be captured. Check capture_error events.'); }).finally(()=>this.pending.delete(task));
     this.pending.add(task);
   }
   onEvent(source, method, p) {
@@ -106,7 +106,7 @@ export class TrafficObserver {
       const child={tabId:this.tabId,sessionId:p.sessionId};
       this.targets.set(p.sessionId,{type:p.targetInfo.type,url:safeUrl(p.targetInfo.url)});
       this.add({kind:'target_attached',session:p.sessionId,...this.targets.get(p.sessionId)},observed);
-      this.track(this.enable(child).catch(()=>{ if (record===this.record) this.add({kind:'capture_error',session:p.sessionId,message:'子目標 Network.enable / autoAttach 失敗。'}); throw new Error('target'); }));
+      this.track(this.enable(child).catch(()=>{ if (record===this.record) this.add({kind:'capture_error',session:p.sessionId,message:'Child target Network.enable / autoAttach failed.'}); throw new Error('target'); }));
       return;
     }
     if (method==='Target.detachedFromTarget') {
@@ -154,7 +154,7 @@ export class TrafficObserver {
       this.track(this.command(source,'Network.getResponseBody',{requestId:p.requestId}).then(result=>{
         if (record!==this.record) return;
         this.add({kind:'http_body',...context,...meta,stage,payload:payload(result.body,result.base64Encoded,this.record.includeBinary,this.limits.payloadChars)},observed,true);
-      },()=>{ if (record===this.record) this.add({kind:'capture_error',...context,stage,message:'HTTP 回應內容已不可用。'},observed,true); }));
+      },()=>{ if (record===this.record) this.add({kind:'capture_error',...context,stage,message:'HTTP response body is no longer available.'},observed,true); }));
     }
   }
   onDetach(source, reason) {
@@ -173,21 +173,21 @@ export class TrafficObserver {
         let deadline;
         await Promise.race([Promise.allSettled([...this.pending]),new Promise(resolve=>{ deadline=setTimeout(resolve,2000); })]);
         clearTimeout(deadline);
-        if (this.pending.size) this.warn('停止時仍有擷取未完成，部分回應可能缺少內容。');
+        if (this.pending.size) this.warn('Some captures were still pending at stop. Response bodies may be missing.');
       }
       if (this.attached) await this.detach(this.tabId).catch(()=>{});
       this.attached=false;
       this.record.counts={...this.counts};
       this.record.byteCount=this.bytes;
       try { await this.persist(this.record); }
-      catch { this.persistError='無法暫存紀錄，請在重新載入擴充功能前直接匯出。'; }
+      catch { this.persistError='Cannot save the session record. Export it before reloading the extension.'; }
       this.phase='stopped'; this.onEnd();
       return this.status();
     })();
     return this.stopTask;
   }
   async clear() {
-    if (['starting','recording','stopping'].includes(this.phase)) throw new Error('先停止觀察再清除紀錄。');
+    if (['starting','recording','stopping'].includes(this.phase)) throw new Error('Stop observation before clearing the record.');
     await this.persist(null); this.record=null; this.phase='idle'; this.bytes=0; this.counts={};
     this.stage='baseline'; this.persistError=''; this.stopTask=null; this.tabId=null;
     this.requests.clear(); this.sockets.clear(); this.targets.clear();

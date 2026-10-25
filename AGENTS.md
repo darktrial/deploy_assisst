@@ -1,6 +1,6 @@
 # deploy_assisst 開發規範
 
-本檔適用於本目錄及其子目錄。`<repo-root>` 指本目錄，不是上一層工作區。原始碼與文件以繁體中文說明；保留程式介面英文名稱。
+本檔適用於本目錄及其子目錄。`<repo-root>` 指本目錄，不是上一層工作區。開發文件可使用繁體中文；擴充功能介面、提示與錯誤訊息統一使用英文。
 
 ## 先讀與任務路由
 
@@ -36,4 +36,4 @@ python tools/package.py
 
 維護 `.skill/notes/version_history.md`；程式或資源改變後執行 `python .skill/scripts/resources.py --write` 更新索引，再執行同腳本不帶參數驗證。不要把測試通過或圖譜生成寫成完整 code review／已安裝擴充功能 E2E 通過。
 
-發佈功能修改才調整對應 Chrome manifest 版本；目前主版 v1.2.0／舊版 v0.3.0。搬移後 Chrome 需從新目錄重新載入未封裝項目；不要假定原安裝路徑或 storage 自動轉移。
+發佈功能修改才調整對應 Chrome manifest 版本；目前主版 v1.2.1／舊版 v0.3.1。搬移後 Chrome 需從新目錄重新載入未封裝項目；不要假定原安裝路徑或 storage 自動轉移。

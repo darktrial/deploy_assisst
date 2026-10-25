@@ -28,17 +28,17 @@ export class NativeClient {
         if(result.result?.value===true)found.push(context);
       }catch { /* Contexts can disappear while a frame loads. */ }
     }
-    if(found.length!==1)throw new Error('找不到唯一的 Unity 遊戲環境；請等待遊戲完成載入。');
+    if(found.length!==1)throw new Error('Cannot identify a unique Unity game context. Wait for the game to finish loading.');
     this.selected=found[0];this.profile=profile;
     return this.call('inspect',{},true);
   }
   async call(command,args={},verifyHash=false) {
-    if(!this.selected)throw new Error('尚未連接 Unity。');
+    if(!this.selected)throw new Error('Not connected to Unity.');
     const result=await this.command(this.selected.source,'Runtime.evaluate',{
       contextId:this.selected.id,expression:`(${nativeInPage.toString()})(${JSON.stringify(this.profile)},${JSON.stringify(command)},${JSON.stringify(args)},${verifyHash})`,
       returnByValue:true,awaitPromise:true,timeout:10000});
-    if(result.exceptionDetails)throw new Error(result.exceptionDetails.exception?.description?.split('\n')[0]||'遊戲原生呼叫失敗。');
-    if(result.result?.value===undefined)throw new Error('Unity 未回傳有效結果。');
+    if(result.exceptionDetails)throw new Error(result.exceptionDetails.exception?.description?.split('\n')[0]||'Native game call failed.');
+    if(result.result?.value===undefined)throw new Error('Unity returned no valid result.');
     return result.result.value;
   }
 }

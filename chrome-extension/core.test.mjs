@@ -2,14 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {importRecording, validateSteps, sameViewport, gamePage} from './core.mjs';
 const viewport = {width:1265,height:1041,pageX:0,pageY:0,scale:1,zoom:1};
-const step = () => ({name:'出發',enabled:true,kind:'normal',type:'click',delay:0,x:100,y:200,viewport:{...viewport}});
+const step = () => ({name:'Dispatch',enabled:true,kind:'normal',type:'click',delay:0,x:100,y:200,viewport:{...viewport}});
 test('Recorder import removes secrets and requires calibration', () => {
   const imported = importRecording({title:'secret', steps:[{type:'navigate',url:'https://example.com/?user_token=secret'},{type:'click',offsetX:281,offsetY:209},{type:'doubleClick',offsetX:906,offsetY:656}]});
   assert.equal(imported.length,2);
   assert.equal(imported[0].enabled,false);
   assert.equal(imported[1].kind,'boost');
   assert.equal(JSON.stringify(imported).includes('secret'),false);
-  assert.throws(() => validateSteps(imported,true),/尚未校準/);
+  assert.throws(() => validateSteps(imported,true),/not calibrated/);
 });
 test('boost clicks require explicit opt-in; duplicate clicks are not collapsed', () => {
   const boost = {...step(),kind:'boost',type:'doubleClick'};
@@ -79,14 +79,14 @@ test('background sends clicks, stops on focus loss, and releases mouse on cancel
   await t.test('focus loss prevents the next step',async()=>{
     loseFocusOnRelease=true; commands=[];
     const result = await request({type:'run',tabId:1,steps:[step(),step()],allowBoost:false});
-    assert.equal(result.ok,false); assert.match(result.error,/失去焦點/);
+    assert.equal(result.ok,false); assert.match(result.error,/lost focus/);
     assert.equal(commands.filter(c=>c.params?.type==='mousePressed').length,1);
     assert.equal(attached,detached);
   });
   await t.test('stop during mouse press still releases and prevents second double click',async()=>{
     loseFocusOnRelease=false; cancelOnPress=true; commands=[];
     const result = await request({type:'run',tabId:1,steps:[{...step(),type:'doubleClick'}],allowBoost:false});
-    assert.equal(result.ok,false); assert.match(result.error,/停止/);
+    assert.equal(result.ok,false); assert.match(result.error,/stopped/);
     assert.deepEqual(commands.filter(c=>c.method==='Input.dispatchMouseEvent').map(c=>c.params.type),['mouseMoved','mousePressed','mouseReleased']);
     assert.equal(attached,detached);
     assert.equal((await request({type:'status'})).data.running,false);

@@ -47,19 +47,19 @@ test('zero or one available item still dispatches and waits for arrival', async 
 });
 test('arrival timeout never sends additional speedups or dispatches', async () => {
   const h = harness({arrive: false});
-  await assert.rejects(h.run(), /超過兩分鐘/);
+  await assert.rejects(h.run(), /within two minutes/);
   assert.equal(h.calls.filter(c => c.command === 'boost').length, 2);
   assert.equal(h.calls.filter(c => c.command === 'dispatch').length, 1);
 });
 test('missing queue and stop during arrival wait never report success', async () => {
-  await assert.rejects(harness({disappear: true}).run(), /無法確認抵達/);
+  await assert.rejects(harness({disappear: true}).run(), /Cannot confirm arrival/);
   await assert.rejects(harness({cancel: true}).run(), /stopped/);
 });
 test('missing first preset or selected target fails before mutation; URL allowlist is exact', async () => {
   const a = harness(); a.s.presets = [{pos: 2}];
-  await assert.rejects(a.run(), /第一組/); assert.equal(a.calls.length, 0);
+  await assert.rejects(a.run(), /preset slot 1/); assert.equal(a.calls.length, 0);
   const b = harness(); b.s.target = null;
-  await assert.rejects(b.run(), /先選好/); assert.equal(b.calls.length, 0);
+  await assert.rejects(b.run(), /Select a resource point first/); assert.equal(b.calls.length, 0);
   gamePage('https://game.gtarcade.com/game?irrelevant=1');
   for (const url of ['https://evil.test/game', 'https://game.gtarcade.com/other', 'http://game.gtarcade.com/game']) assert.throws(() => gamePage(url));
 });
@@ -92,7 +92,7 @@ test('toolbar uses scripting without debugger, ignores duplicate clicks and expo
     assert.equal(badges.at(-1), '!');
     const reply=await new Promise(resolve=>handlers.message({type:'hotkeyRun'},
       {id:'test-extension',url:'https://logins-gotpc.gtarcade.com/login/game',tab:{id:2,url:'https://game.gtarcade.com/game'}},resolve));
-    assert.equal(reply.ok,false);assert.match(reply.error,/未啟用/);
+    assert.equal(reply.ok,false);assert.match(reply.error,/inactive/);
     const foreign=await new Promise(resolve=>handlers.message({type:'hotkeyRun'},
       {id:'test-extension',url:'https://example.com',tab:{id:2,url:'https://game.gtarcade.com/game'}},resolve));
     assert.equal(foreign.ok,false);
@@ -115,15 +115,15 @@ test('toolbar uses scripting without debugger, ignores duplicate clicks and expo
   const h=harness({duration:4,inventory:10});
   await h.run(); assert.equal(h.calls.filter(c=>c.command==='boost').length,1);
   const elapsed=harness({duration:8,inventory:10,elapsed:1000,arrive:false});
-  await assert.rejects(elapsed.run(),/超過兩分鐘/);
+  await assert.rejects(elapsed.run(),/within two minutes/);
   assert.equal(elapsed.calls.filter(c=>c.command==='boost').length,1);
  });
  test('invalid timing, lost boost acknowledgement and cancellation never spend again', async () => {
   const bad=harness({duration:NaN});
-  await assert.rejects(bad.run(),/時間資料/);
+  await assert.rejects(bad.run(),/timing data/);
   assert.equal(bad.calls.filter(c=>c.command==='boost').length,0);
   const missing=harness({noAck:true,arrive:false});
-  await assert.rejects(missing.run(),/加速回應.*逾時/);
+  await assert.rejects(missing.run(),/speedup acknowledgement.*timed out/);
   assert.equal(missing.calls.filter(c=>c.command==='boost').length,1);
   const cancelled=harness({cancelBoost:true});
   await assert.rejects(cancelled.run(),/stopped/);

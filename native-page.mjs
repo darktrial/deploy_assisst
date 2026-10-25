@@ -3,14 +3,14 @@
 export async function nativeInPage(profile, command, args = {}, verifyHash = true, transportEnvelope = false) {
   try {
   const m=window.gameInstance?.Module;
-  if (!m?.HEAPU8 || !m.HEAPU32 || !m.asm?.__indirect_function_table) throw new Error('Unity 尚未就緒。');
-  if (!m.wasmBinary || m.wasmBinary.byteLength!==profile.wasmBytes) throw new Error('遊戲版本不相容，停止原生操作。');
+  if (!m?.HEAPU8 || !m.HEAPU32 || !m.asm?.__indirect_function_table) throw new Error('Unity is not ready.');
+  if (!m.wasmBinary || m.wasmBinary.byteLength!==profile.wasmBytes) throw new Error('Incompatible game version. Native operations stopped.');
   if (verifyHash) {
     const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',m.wasmBinary))).map(x=>x.toString(16).padStart(2,'0')).join('');
-    if (hash!==profile.wasmSha256) throw new Error('遊戲程式指紋不符，停止原生操作。');
+    if (hash!==profile.wasmSha256) throw new Error('Game fingerprint mismatch. Native operations stopped.');
   }
   const bytes=()=>m.HEAPU8;
-  const range=(p,size=4)=>{ if (!Number.isInteger(p)||p<4||p+size>bytes().byteLength) throw new Error('遊戲資料指標無效。'); return p; };
+  const range=(p,size=4)=>{ if (!Number.isInteger(p)||p<4||p+size>bytes().byteLength) throw new Error('Invalid game data pointer.'); return p; };
   const u32=p=>new DataView(bytes().buffer).getUint32(range(p),true);
   const i32=p=>new DataView(bytes().buffer).getInt32(range(p),true);
   const u16=p=>new DataView(bytes().buffer).getUint16(range(p,2),true);
@@ -18,32 +18,32 @@ export async function nativeInPage(profile, command, args = {}, verifyHash = tru
   const i64=p=>new DataView(bytes().buffer).getBigInt64(range(p,8),true).toString();
   const cstr=p=>{
     range(p,1);let end=p;while(end<p+180&&end<bytes().length&&bytes()[end])end++;
-    if(end===p+180)throw new Error('類別名稱過長。');
+    if(end===p+180)throw new Error('Class name is too long.');
     return new TextDecoder().decode(bytes().subarray(p,end));
   };
   const str=p=>{
-    if(!p)return '';const length=i32(p+8);if(length<0||length>256)throw new Error('文字長度異常。');
+    if(!p)return '';const length=i32(p+8);if(length<0||length>256)throw new Error('Invalid string length.');
     range(p+12,length*2);return new TextDecoder('utf-16le').decode(bytes().subarray(p+12,p+12+length*2));
   };
   const layout=profile.classLayout;
   const className=object=>cstr(u32(u32(object)+layout.name));
-  const assertClass=(object,name)=>{if(!object||className(object)!==name)throw new Error(`遊戲物件 ${name} 未就緒。`);return object;};
+  const assertClass=(object,name)=>{if(!object||className(object)!==name)throw new Error(`Game object ${name} is not ready.`);return object;};
   const staticFields=name=>{
     const klass=u32(profile.types[name]);
-    if(cstr(u32(klass+layout.name))!==name||cstr(u32(klass+layout.namespace))!=='Yoozoo.Mars.Got' && name!=='WarHallPlugin')throw new Error('遊戲類別版本不符。');
+    if(cstr(u32(klass+layout.name))!==name||cstr(u32(klass+layout.namespace))!=='Yoozoo.Mars.Got' && name!=='WarHallPlugin')throw new Error('Game class version mismatch.');
     return u32(klass+layout.staticFields);
   };
   const singleton=name=>assertClass(u32(staticFields(name)),name);
   const list=p=>{
     if(!p)return [];const count=i32(p+12),array=u32(p+8);
-    if(count<0||count>500)throw new Error('遊戲清單數量異常。');
-    if(!count)return []; if(count>u32(array+12))throw new Error('清單容量異常。');
+    if(count<0||count>500)throw new Error('Invalid game list count.');
+    if(!count)return []; if(count>u32(array+12))throw new Error('Invalid list capacity.');
     return Array.from({length:count},(_,i)=>u32(array+16+i*4));
   };
   const dictionary=(p,longKey=false)=>{
     if(!p)return [];const count=i32(p+16),entries=u32(p+12);
-    if(count<0||count>12000)throw new Error('遊戲資料表數量異常。');
-    if(!count)return [];if(count>u32(entries+12))throw new Error('資料表容量異常。');
+    if(count<0||count>12000)throw new Error('Invalid game dictionary count.');
+    if(!count)return [];if(count>u32(entries+12))throw new Error('Invalid dictionary capacity.');
     const rows=[],stride=longKey?24:16;
     for(let i=0;i<count;i++){
       const e=entries+16+i*stride;if(i32(e)<0)continue;
@@ -57,20 +57,20 @@ export async function nativeInPage(profile, command, args = {}, verifyHash = tru
   const windows=()=>dictionary(u32(gui+32)).map(r=>r.value);
   const visible=name=>{
     const found=windows().filter(p=>className(p)===name&&u8(p+36));
-    if(found.length>1)throw new Error('同時存在多個目標視窗。');return found[0]||0;
+    if(found.length>1)throw new Error('Multiple target windows are open.');return found[0]||0;
   };
   const method=(object,key)=>{
     const spec=profile.methods[key];assertClass(object,spec.class);
     const klass=u32(object),count=u16(klass+layout.methodCount),array=u32(klass+layout.methods);
-    if(count>500)throw new Error('方法數量異常。');
+    if(count>500)throw new Error('Invalid method count.');
     const found=[];
     for(let i=0;i<count;i++){
       const p=u32(array+i*4);
       if(cstr(u32(p+12))===spec.name&&u8(p+46)===spec.args)found.push(p);
     }
-    if(found.length!==1||u32(found[0])!==spec.slot)throw new Error(`原生入口 ${spec.name} 與版本不符。`);
+    if(found.length!==1||u32(found[0])!==spec.slot)throw new Error(`Native entry ${spec.name} version mismatch.`);
     const fn=m.asm.__indirect_function_table.get(spec.slot);
-    if(typeof fn!=='function'||fn.length!==spec.arity)throw new Error('原生方法參數不符。');
+    if(typeof fn!=='function'||fn.length!==spec.arity)throw new Error('Native method parameter mismatch.');
     return {pointer:found[0],fn};
   };
   const invoke=(object,key,values)=>{const entry=method(object,key);return entry.fn(object,...values,entry.pointer);};
@@ -95,12 +95,12 @@ export async function nativeInPage(profile, command, args = {}, verifyHash = tru
     const bag=assertClass(u32(data+100),'BagData');
     const row=dictionary(u32(bag+12)).find(r=>r.key===itemId);if(!row)return 0;
     assertClass(row.value,'ItemVO');const item=assertClass(u32(row.value+8),'DisplayItem');
-    if(i32(item+12)!==itemId)throw new Error('道具資料不一致。');return i32(item+16);
+    if(i32(item+12)!==itemId)throw new Error('Inconsistent item data.');return i32(item+16);
   };
   const panel=()=>{
     const p=visible('SendtrooppanelWindow');if(!p)return null;
     const s=assertClass(u32(p+52),'ShowViewParam');
-    if(i32(s+24)!==0||i32(s+176)!==2||i32(s+192)!==0||u8(s+257)||u8(s+186))throw new Error('目前出征面板不是一般資源採集。');
+    if(i32(s+24)!==0||i32(s+176)!==2||i32(s+192)!==0||u8(s+257)||u8(s+186))throw new Error('The current dispatch panel is not for ordinary resource gathering.');
     return {object:p,target:i32(s+156),preset:i32(p+184),soldiers:i64(p+112),show:s};
   };
   const resource=()=>{
@@ -127,35 +127,35 @@ export async function nativeInPage(profile, command, args = {}, verifyHash = tru
     return snapshot();
   }
   const blockers=blockingWindows();
-  if(blockers.length)throw new Error(`遊戲有其他提示視窗（${blockers.join('、')}），請先處理。`);
+  if(blockers.length)throw new Error(`Resolve the blocking game dialogs first (${blockers.join(', ')}).`);
   if(command==='open'){
-    const r=resource();if(!r||r.target!==args.target)throw new Error('請先選好資源建築物，並重新讀取狀態。');
-    if(r.occupied)throw new Error('此資源點已有行軍，請改選可採集的資源點。');
+    const r=resource();if(!r||r.target!==args.target)throw new Error('Select a resource building and read the state again.');
+    if(r.occupied)throw new Error('This resource point already has a march. Select an available resource point.');
     invoke(r.object,'collect',[0]);return {sent:true};
   }
   if(command==='preset'){
-    const p=panel();if(!p||p.target!==args.target)throw new Error('出征目標已改變或面板尚未開啟。');
-    if(!Number.isInteger(args.preset)||!presets().some(x=>x.pos===args.preset))throw new Error('所選 army preset 不存在。');
+    const p=panel();if(!p||p.target!==args.target)throw new Error('The dispatch target changed or the panel is not open.');
+    if(!Number.isInteger(args.preset)||!presets().some(x=>x.pos===args.preset))throw new Error('The selected army preset does not exist.');
     // Same ClearCommanderBtn -> setPerInfoShow path as onChangePerChooseCer.
     method(p.object,'clear');method(p.object,'preset');
     const heroes=u32(p.object+252),dragons=u32(p.object+256);
     invoke(p.object,'clear',[]);invoke(p.object,'preset',[args.preset,heroes,dragons]);
     const updated=panel();
-    if(!updated||updated.preset!==args.preset)throw new Error('遊戲尚未套用指定 preset，已停止。');
+    if(!updated||updated.preset!==args.preset)throw new Error('The game has not applied the selected preset. Stopped.');
     return snapshot();
   }
   if(command==='dispatch'){
-    const p=panel();if(!p||p.target!==args.target||p.preset!==args.preset||BigInt(p.soldiers)<=0n)throw new Error('目標、preset 或兵力檢查未通過。');
+    const p=panel();if(!p||p.target!==args.target||p.preset!==args.preset||BigInt(p.soldiers)<=0n)throw new Error('Target, preset, or troop validation failed.');
     invoke(p.object,'dispatch',[0]);return {sent:true};
   }
   if(command==='boost'){
-    if(!profile.allowedBoostItems.includes(args.itemId)||args.count!==1)throw new Error('不支援的加速道具或數量。');
+    if(!profile.allowedBoostItems.includes(args.itemId)||args.count!==1)throw new Error('Unsupported speedup item or quantity.');
     const q=queues().find(q=>q.uid===args.queueId&&q.marchId===args.marchId&&q.target===String(args.target)&&q.subType===1);
-    if(!q||!/^\d+$/.test(q.uid)||Number(q.uid)>2147483647)throw new Error('指定行軍已結束或不是本次採集行軍。');
-    if(inventory(args.itemId)<1)throw new Error('加速道具不足。');
+    if(!q||!/^\d+$/.test(q.uid)||Number(q.uid)>2147483647)throw new Error('The specified march has ended or does not match this gathering run.');
+    if(inventory(args.itemId)<1)throw new Error('Insufficient speedup items.');
     invoke(singleton('QueuePlugin'),'boost',[Number(q.uid),args.itemId,1]);return {sent:true};
   }
-  throw new Error('不支援的原生操作。');
+  throw new Error('Unsupported native operation.');
   } catch (error) {
     // executeScript may omit uncaught exception details; return an explicit failure.
     if (transportEnvelope) return {__gtError: String(error.message || error)};

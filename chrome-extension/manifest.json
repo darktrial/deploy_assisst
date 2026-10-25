@@ -1,17 +1,47 @@
 {
   "manifest_version": 3,
-  "name": "GT 採集助手",
-  "version": "0.3.0",
-  "description": "支援原生採集入口、通訊觀察與 army preset 流程。",
+  "name": "GT Gathering Helper",
+  "version": "0.3.1",
+  "description": "Native resource gathering, traffic observation, and army preset workflows.",
   "minimum_chrome_version": "125",
-  "permissions": ["storage", "debugger"],
-  "host_permissions": ["https://game.gtarcade.com/*"],
-  "background": {"service_worker": "background.js", "type": "module"},
-  "action": {"default_title": "開啟 GT 採集助手"},
+  "permissions": [
+    "storage",
+    "debugger"
+  ],
+  "host_permissions": [
+    "https://game.gtarcade.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "Open GT Gathering Helper"
+  },
   "commands": {
-    "stop": {"suggested_key": {"default": "Alt+Shift+S"}, "description": "停止採集流程或通訊觀察"},
-    "mark-preset": {"suggested_key": {"default": "Alt+Shift+1"}, "description": "標記：即將選 army preset"},
-    "mark-march": {"suggested_key": {"default": "Alt+Shift+2"}, "description": "標記：即將出征"},
-    "mark-boost": {"suggested_key": {"default": "Alt+Shift+3"}, "description": "標記：即將使用加速"}
+    "stop": {
+      "suggested_key": {
+        "default": "Alt+Shift+S"
+      },
+      "description": "Stop further actions or traffic observation"
+    },
+    "mark-preset": {
+      "suggested_key": {
+        "default": "Alt+Shift+1"
+      },
+      "description": "Mark: about to select an army preset"
+    },
+    "mark-march": {
+      "suggested_key": {
+        "default": "Alt+Shift+2"
+      },
+      "description": "Mark: about to dispatch"
+    },
+    "mark-boost": {
+      "suggested_key": {
+        "default": "Alt+Shift+3"
+      },
+      "description": "Mark: about to use a speedup"
+    }
   }
 }

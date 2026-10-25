@@ -5,7 +5,7 @@ let busy = false;
 let cancelled = false;
 let client = null;
 let runningTab = null;
-let state = {running: false, message: '待命：選好資源點後點工具列圖示。', log: []};
+let state = {running: false, message: 'Ready: select a resource point, then press F8 or click the toolbar icon.', log: []};
 let writes = Promise.resolve();
 
 function persist() {
@@ -20,9 +20,9 @@ function note(message) {
   state.log.push({time: new Date().toISOString(), message});
   state.log = state.log.slice(-80);
   void persist();
-  void chrome.action.setTitle({title: `GT 一鍵出征：${message}`});
+  void chrome.action.setTitle({title: `GT One-Click Dispatch: ${message}`});
 }
-function check() { if (cancelled) throw new Error('已停止後續操作；已出征的軍隊與已使用的道具不會撤回。'); }
+function check() { if (cancelled) throw new Error('Stopped further actions. Dispatched troops and consumed items cannot be undone.'); }
 async function sleep(ms) {
   const end = Date.now() + ms;
   while (Date.now() < end) {
@@ -43,20 +43,20 @@ export async function start(tab) {
   state = {running: true, message: '', log: [], startedAt: new Date().toISOString()};
   try {
     gamePage(tab?.url);
-    if (!Number.isInteger(tab.id)) throw new Error('找不到目前遊戲分頁。');
+    if (!Number.isInteger(tab.id)) throw new Error('Cannot find the current game tab.');
     await badge('…', '#2563eb');
-    note('連接目前遊戲並檢查版本。');
+    note('Connecting to the game and checking its version.');
     runningTab = tab.id;
     check();
     client = new NativeClient(tab.id, injection => chrome.scripting.executeScript(injection));
     const response = await fetch(chrome.runtime.getURL('native-profile.json'));
-    if (!response.ok) throw new Error('無法載入遊戲版本設定。');
+    if (!response.ok) throw new Error('Cannot load the game version profile.');
     const snapshot = await client.connect(await response.json());
     state.result = await runOneClick(client, snapshot, {check, sleep, note});
     await badge('✓', '#15803d');
   } catch (error) {
     note(error.message || String(error));
-    await badge(cancelled ? '停' : '!', '#b45309');
+    await badge(cancelled ? 'STOP' : '!', '#b45309');
   } finally {
     client = null;
     runningTab = null;
@@ -87,16 +87,16 @@ chrome.runtime.onMessage.addListener((message, sender, respond) => {
   if (message.type === 'hotkeyRun' && sender.tab) {
     try {
       const origin = new URL(sender.url).origin;
-      if (!['https://game.gtarcade.com', 'https://logins-gotpc.gtarcade.com'].includes(origin)) throw new Error('快捷鍵來源不符。');
+      if (!['https://game.gtarcade.com', 'https://logins-gotpc.gtarcade.com'].includes(origin)) throw new Error('Invalid hotkey origin.');
       gamePage(sender.tab.url);
-    } catch { respond({ok: false, error: '快捷鍵來源或遊戲分頁不符，請重新整理遊戲。'}); return; }
+    } catch { respond({ok: false, error: 'Invalid hotkey origin or game tab. Please refresh the game.'}); return; }
     chrome.tabs.get(sender.tab.id).then(tab => {
       gamePage(tab.url);
-      if (!tab.active) throw new Error('遊戲分頁未啟用。');
+      if (!tab.active) throw new Error('The game tab is inactive.');
       const status = busy ? 'busy' : 'started';
       void start(tab);
       respond({ok: true, status});
-    }).catch(() => respond({ok: false, error: '遊戲分頁未啟用或已關閉，請先點一下遊戲畫面。'}));
+    }).catch(() => respond({ok: false, error: 'The game tab is inactive or closed. Click inside the game first.'}));
     return true;
   }
   if (sender.url !== chrome.runtime.getURL('status.html')) return;

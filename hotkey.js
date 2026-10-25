@@ -8,7 +8,7 @@
     notice?.remove();
     clearTimeout(timer);
     notice = document.createElement('div');
-    notice.textContent = `GT 一鍵出征：${message}`;
+    notice.textContent = `GT One-Click Dispatch: ${message}`;
     notice.setAttribute('role', 'status');
     notice.style.cssText = 'position:fixed;top:12px;right:12px;z-index:2147483647;background:#182538;color:white;padding:10px 14px;border-radius:8px;font:14px/1.5 sans-serif;max-width:420px;pointer-events:none';
     document.documentElement.appendChild(notice);
@@ -26,10 +26,10 @@
     event.stopImmediatePropagation();
     try {
       chrome.runtime.sendMessage({type: 'hotkeyRun'}).then(reply => {
-        if (!reply?.ok) show(reply?.error || '快捷鍵未連接，請重新整理遊戲或從選項按「修復 F8」。');
-        else show(reply.status === 'busy' ? '已有流程執行中，忽略重複按鍵。' : '已收到 F8，開始檢查目標；結果請看工具列圖示或執行紀錄。');
-      }).catch(() => show('擴充功能已重新載入或連線中斷，請重新整理遊戲。'));
-    } catch { show('擴充功能已重新載入，請重新整理遊戲。'); }
+        if (!reply?.ok) show(reply?.error || 'Hotkey disconnected. Refresh the game or click Repair F8 in Options.');
+        else show(reply.status === 'busy' ? 'A run is already active. Duplicate key press ignored.' : 'F8 received. Checking the target; see the toolbar icon or execution log for results.');
+      }).catch(() => show('The extension was reloaded or disconnected. Please refresh the game.'));
+    } catch { show('The extension was reloaded. Please refresh the game.'); }
   }
   function keydown(event) {
     if (!event.isTrusted || (event.code !== 'F8' && event.key !== 'F8')) return;

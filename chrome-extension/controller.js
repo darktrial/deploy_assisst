@@ -8,7 +8,7 @@ const steps = () => profile().steps;
 const message = text => { $('status').textContent = text; };
 async function api(type, data = {}) {
   const result = await chrome.runtime.sendMessage({type, ...data});
-  if (!result?.ok) throw new Error(result?.error || '背景服務沒有回應。');
+  if (!result?.ok) throw new Error(result?.error || 'The background service did not respond.');
   return result.data;
 }
 async function save() { await chrome.storage.local.set({profiles}); }
@@ -27,64 +27,64 @@ function render() {
     enabled.onchange = () => { s.enabled = enabled.checked; save().catch(e => message(e.message)); }; cell(enabled);
     const name = field('input', {type: 'text', value: s.name, maxLength: 100});
     name.onchange = () => { s.name = name.value; save().catch(e => message(e.message)); }; cell(name);
-    const type = field('select'); type.append(new Option('單擊', 'click'), new Option('雙擊', 'doubleClick')); type.value = s.type;
+    const type = field('select'); type.append(new Option('Single click', 'click'), new Option('Double click', 'doubleClick')); type.value = s.type;
     type.onchange = () => { s.type = type.value; save().catch(e => message(e.message)); }; cell(type);
     const delay = field('input', {type: 'number', value: s.delay, min: 0, max: 30000, step: 100});
     delay.onchange = () => { s.delay = Number(delay.value); save().catch(e => message(e.message)); }; cell(delay);
     const boost = field('input', {type: 'checkbox', checked: s.kind === 'boost'});
     boost.onchange = () => { s.kind = boost.checked ? 'boost' : 'normal'; save().catch(e => message(e.message)); }; cell(boost);
-    const position = field('small', {textContent: s.viewport ? `已校準 (${s.x}, ${s.y}) · ${s.viewport.width}×${s.viewport.height}` : `待校準 · 原 canvas (${s.sourceX ?? '—'}, ${s.sourceY ?? '—'})`}); cell(position);
+    const position = field('small', {textContent: s.viewport ? `Calibrated (${s.x}, ${s.y}) · ${s.viewport.width}×${s.viewport.height}` : `Not calibrated · original canvas (${s.sourceX ?? '—'}, ${s.sourceY ?? '—'})`}); cell(position);
     const controls = field('div');
-    const calibrate = field('button', {textContent: '校準'}); calibrate.onclick = () => {
+    const calibrate = field('button', {textContent: 'Calibrate'}); calibrate.onclick = () => {
       selected = i; render(); $('marker').hidden = true;
-      $('calibration').textContent = `正在校準：${s.name}。先擷取對應畫面，再點截圖中的目標。`;
+      $('calibration').textContent = `Calibrating: ${s.name}. Capture the matching screen, then click the target in the screenshot.`;
     };
-    const remove = field('button', {textContent: '刪除'}); remove.onclick = () => { steps().splice(i, 1); selected = null; render(); save().catch(e => message(e.message)); };
+    const remove = field('button', {textContent: 'Delete'}); remove.onclick = () => { steps().splice(i, 1); selected = null; render(); save().catch(e => message(e.message)); };
     controls.append(calibrate, remove); cell(controls); $('steps').append(row);
   });
 }
 async function refresh() {
   const tabs = await api('tabs');
-  $('tabs').replaceChildren(...tabs.map(t => new Option(`${t.title || '遊戲'} (#${t.id})`, String(t.id))));
-  if (!tabs.length) message('請先在 Chrome 開啟並登入 game.gtarcade.com 的遊戲分頁。');
+  $('tabs').replaceChildren(...tabs.map(t => new Option(`${t.title || 'Game'} (#${t.id})`, String(t.id))));
+  if (!tabs.length) message('Open the game tab at game.gtarcade.com in Chrome and sign in first.');
 }
 function target() {
-  if (!$('tabs').value) throw new Error('找不到遊戲分頁。');
+  if (!$('tabs').value) throw new Error('Cannot find a game tab.');
   return Number($('tabs').value);
 }
 on('refresh', refresh);
 on('capture', async () => {
-  if (busy) throw new Error('流程執行中。');
+  if (busy) throw new Error('Workflow is running.');
   const captured = await api('capture', {tabId: target()});
   shot = captured; $('shot').src = captured.image; $('shot').hidden = false; $('marker').hidden = true;
-  $('calibration').textContent = `已擷取 ${shot.viewport.width}×${shot.viewport.height}。選擇步驟的「校準」，再點截圖。`;
+  $('calibration').textContent = `Captured ${shot.viewport.width}×${shot.viewport.height}. Select Calibrate for a step, then click the screenshot.`;
 });
 $('shot').addEventListener('click', async event => {
   try {
-    if (!shot || selected === null || !steps()[selected]) throw new Error('先選取步驟的「校準」。');
-    if (shot.tabId !== target()) throw new Error('遊戲分頁已切換，請重新擷取。');
+    if (!shot || selected === null || !steps()[selected]) throw new Error('Select Calibrate for a step first.');
+    if (shot.tabId !== target()) throw new Error('The game tab changed. Capture again.');
     const rect = $('shot').getBoundingClientRect();
     const x = Math.floor((event.clientX - rect.left) / rect.width * shot.viewport.width);
     const y = Math.floor((event.clientY - rect.top) / rect.height * shot.viewport.height);
     Object.assign(steps()[selected], {x, y, viewport: {...shot.viewport}});
     $('marker').hidden = false; $('marker').style.left = `${(event.clientX - rect.left) / rect.width * 100}%`; $('marker').style.top = `${(event.clientY - rect.top) / rect.height * 100}%`;
-    await save(); render(); $('calibration').textContent = `已保存 ${steps()[selected].name} 的位置 (${x}, ${y})。`;
+    await save(); render(); $('calibration').textContent = `Saved ${steps()[selected].name} position (${x}, ${y}).`;
   } catch (e) { message(e.message); }
 });
 $('profiles').onchange = () => { current = Number($('profiles').value); selected = null; $('allowBoost').checked = false; render(); };
 on('duplicate', async () => {
-  const name = prompt('新 army preset 流程名稱', `Army preset ${profiles.length + 1}`);
+  const name = prompt('New army preset workflow name', `Army preset ${profiles.length + 1}`);
   if (!name?.trim()) return;
   profiles.push({name: name.trim().slice(0, 100), steps: structuredClone(steps())}); current = profiles.length - 1; selected = null;
   await save(); renderProfiles(); render();
 });
 on('rename', async () => {
-  const name = prompt('流程名稱', profile().name); if (!name?.trim()) return;
+  const name = prompt('Workflow name', profile().name); if (!name?.trim()) return;
   profile().name = name.trim().slice(0,100); await save(); renderProfiles();
 });
 on('add', async () => {
-  if (steps().length >= 100) throw new Error('最多 100 步。');
-  steps().push({name: '新步驟', enabled: true, kind: 'normal', type: 'click', delay: 1500, x: null, y: null, viewport: null});
+  if (steps().length >= 100) throw new Error('Maximum 100 steps.');
+  steps().push({name: 'New step', enabled: true, kind: 'normal', type: 'click', delay: 1500, x: null, y: null, viewport: null});
   await save(); render();
 });
 function download(data, filename) {
@@ -95,16 +95,16 @@ on('export', () => download({format:'gt-helper-v1', ...profile()}, 'gt-army-pres
 $('import').onchange = async () => {
   try {
     const file = $('import').files[0]; if (!file) return;
-    if (file.size > 2_000_000) throw new Error('檔案太大。');
+    if (file.size > 2_000_000) throw new Error('File is too large.');
     const data = JSON.parse(await file.text());
     let imported;
     if (data.format === 'gt-helper-v1') {
-      if (!Array.isArray(data.steps) || !data.steps.length || data.steps.length > 100) throw new Error('流程格式錯誤。');
+      if (!Array.isArray(data.steps) || !data.steps.length || data.steps.length > 100) throw new Error('Invalid workflow format.');
       // Whitelist fields; imported coordinates always require fresh calibration.
-      imported = data.steps.map((s,i) => ({name: String(s.name || `步驟 ${i+1}`).slice(0,100), enabled: s.enabled === true, kind: s.kind === 'boost' ? 'boost' : 'normal', type: s.type === 'doubleClick' ? 'doubleClick' : 'click', delay: Number.isInteger(s.delay) && s.delay >= 0 && s.delay <= 30000 ? s.delay : 1500, x:null, y:null, viewport:null}));
+      imported = data.steps.map((s,i) => ({name: String(s.name || `Step ${i+1}`).slice(0,100), enabled: s.enabled === true, kind: s.kind === 'boost' ? 'boost' : 'normal', type: s.type === 'doubleClick' ? 'doubleClick' : 'click', delay: Number.isInteger(s.delay) && s.delay >= 0 && s.delay <= 30000 ? s.delay : 1500, x:null, y:null, viewport:null}));
     } else imported = importRecording(data);
-    profiles.push({name: `匯入流程 ${profiles.length + 1}`, steps: imported}); current = profiles.length - 1; selected = null;
-    await save(); renderProfiles(); render(); message('已匯入操作；請重新校準。未保存來源網址或登入資料。');
+    profiles.push({name: `Imported workflow ${profiles.length + 1}`, steps: imported}); current = profiles.length - 1; selected = null;
+    await save(); renderProfiles(); render(); message('Actions imported. Recalibrate before running. Source URLs and login data were not saved.');
   } catch (e) { message(e.message); }
   finally { $('import').value = ''; }
 };
@@ -124,12 +124,12 @@ on('nativeProbe',async()=>{
     nativeSnapshot={...s,tabId:target()};
     $('nativePreset').replaceChildren(...s.presets.map(p=>new Option(`${p.pos}. ${p.name}`,String(p.pos))));
     if(s.panel?.preset)$('nativePreset').value=String(s.panel.preset);
-    $('nativeStatus').textContent=[`版本：${s.build}（指紋已驗證）`,
-      s.target?`目標資源格：${s.target}${s.occupied?'（已被佔用）':''}`:'請手動選一個資源建築物，讓資源資訊視窗顯示後再讀取。',
-      `已載入 preset：${s.presets.length} 組；道具 10303 庫存：${s.boostInventory}`,
-      s.blockingWindows?.length?`請先處理額外視窗：${s.blockingWindows.join('、')}`:'',
-      s.source==='dispatch'?`出征面板：preset ${s.panel.preset}，兵力 ${s.panel.soldiers}`:'',
-      '此版入口已做唯讀定位與模擬測試；首次請先選「不使用」加速，核對遊戲結果。'].filter(Boolean).join('\n');
+    $('nativeStatus').textContent=[`Build: ${s.build} (fingerprint verified)`,
+      s.target?`Target resource grid: ${s.target}${s.occupied?' (occupied)':''}`:'Select a resource building manually, leave its information window open, then read the state.',
+      `Loaded presets: ${s.presets.length}; item 10303 inventory: ${s.boostInventory}`,
+      s.blockingWindows?.length?`Resolve these dialogs first: ${s.blockingWindows.join(', ')}`:'',
+      s.source==='dispatch'?`Dispatch panel: preset ${s.panel.preset}, troops ${s.panel.soldiers}`:'',
+      'Native entries were inspected and tested with mocks. For your first run, select No speedups and check the game result.'].filter(Boolean).join('\n');
   } finally {nativeBusy=false;$('nativeProbe').disabled=observing||busy;updateNativeControls();}
 });
 function updateNativeControls(){
@@ -137,11 +137,11 @@ function updateNativeControls(){
   $('nativeProbe').disabled=nativeBusy||observing||busy;
 }
 on('nativeRun',async()=>{
-  if(!nativeSnapshot||nativeSnapshot.tabId!==target())throw new Error('請重新讀取目前遊戲狀態。');
+  if(!nativeSnapshot||nativeSnapshot.tabId!==target())throw new Error('Read the current game state again.');
   busy=true;nativeBusy=true;updateNativeControls();
   try {
     const result=await api('nativeRun',{tabId:target(),options:{preset:Number($('nativePreset').value),target:nativeSnapshot.target,boosts:Number($('nativeBoosts').value)}});
-    $('nativeStatus').textContent=`已確認行軍 ${result.marchId}，queue ${result.queueId}。請在遊戲確認採集結果。`;
+    $('nativeStatus').textContent=`Confirmed march ${result.marchId}, queue ${result.queueId}. Check the gathering result in the game.`;
   } finally {
     busy=false;nativeBusy=false;nativeSnapshot=null;updateNativeControls();
     const status=await api('status');message(status.log.join('\n'));
@@ -149,8 +149,8 @@ on('nativeRun',async()=>{
 });
 $('nativePreset').onchange=updateNativeControls;
 $('tabs').onchange=()=>{nativeSnapshot=null;updateNativeControls();};
-const stages={baseline:'背景基準',preset:'選 preset',march:'出征',boost:'加速',done:'操作完成',custom:'其他'};
-const reasons={user:'手動停止',time_limit:'已達 10 分鐘',capture_limit:'已達筆數／容量上限',start_failed:'啟動失敗'};
+const stages={baseline:'Baseline',preset:'Select preset',march:'Dispatch',boost:'Speedup',done:'Actions complete',custom:'Other'};
+const reasons={user:'Stopped by user',time_limit:'10-minute limit reached',capture_limit:'Event or size limit reached',start_failed:'Start failed'};
 async function refreshObserver() {
   const s=await api('observeStatus'); observing=s.active;
   $('observeStart').disabled=s.active || busy || observationStarting;
@@ -163,10 +163,10 @@ async function refreshObserver() {
   updateNativeControls();
   for (const id of ['capture','refresh','tabs']) $(id).disabled=s.active||busy||nativeBusy;
   const c=s.counts || {};
-  const lines=[`${s.active ? '觀察中' : s.hasRecord ? '已停止，可匯出' : '待命'} · ${s.count} 筆 · ${Math.round((s.bytes||0)/1024)} KiB`,
-    `WebSocket 送出 ${c.wsSent||0}／收到 ${c.wsReceived||0}；HTTP 請求 ${c.httpRequests||0}／回應 ${c.httpResponses||0}`,
-    `目前階段：${stages[s.stage]||s.stage}`];
-  if (s.reason) lines.push(`停止原因：${reasons[s.reason]||s.reason}`);
+  const lines=[`${s.active ? 'Observing' : s.hasRecord ? 'Stopped; ready to export' : 'Ready'} · ${s.count} events · ${Math.round((s.bytes||0)/1024)} KiB`,
+    `WebSocket sent ${c.wsSent||0} / received ${c.wsReceived||0}; HTTP requests ${c.httpRequests||0} / responses ${c.httpResponses||0}`,
+    `Current stage: ${stages[s.stage]||s.stage}`];
+  if (s.reason) lines.push(`Stop reason: ${reasons[s.reason]||s.reason}`);
   for (const marker of s.markers||[]) lines.push(`${(marker.elapsedMs/1000).toFixed(1)}s · ${stages[marker.label]||marker.label}${marker.note ? ' · '+marker.note : ''}`);
   lines.push(...(s.warnings||[])); if (s.error) lines.push(s.error);
   $('observeStatus').textContent=lines.join('\n');
@@ -179,7 +179,7 @@ on('observeStart', async()=>{
 });
 on('observeStop', async()=>{ await api('observeStop'); await refreshObserver(); });
 on('observeExport', async()=>{
-  const data=await api('observeExport'); if (!data) throw new Error('沒有可匯出的通訊紀錄。');
+  const data=await api('observeExport'); if (!data) throw new Error('No traffic record to export.');
   download(data,`gt-traffic-${data.startedAt.replace(/[:.]/g,'-')}.json`);
 });
 on('observeClear', async()=>{ await api('observeClear'); await refreshObserver(); });

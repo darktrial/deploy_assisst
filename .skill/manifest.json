@@ -20,7 +20,7 @@
         "status.html",
         "status.js"
       ],
-      "estimated_tokens": 8105,
+      "estimated_tokens": 7879,
       "load_condition": "on_demand"
     },
     {
@@ -40,7 +40,7 @@
         "chrome-extension/starter-profile.json",
         "chrome-extension/style.css"
       ],
-      "estimated_tokens": 16318,
+      "estimated_tokens": 15987,
       "load_condition": "on_demand"
     },
     {
@@ -79,7 +79,7 @@
         ".gitignore",
         ".graphifyignore"
       ],
-      "estimated_tokens": 7808,
+      "estimated_tokens": 7802,
       "load_condition": "on_demand"
     },
     {
@@ -99,7 +99,7 @@
       "path": "hotkey.test.mjs",
       "type": "node:test",
       "test_count": 4,
-      "estimated_tokens": 850,
+      "estimated_tokens": 845,
       "load_condition": "on_demand"
     },
     {
@@ -107,7 +107,7 @@
       "path": "one-click.test.mjs",
       "type": "node:test",
       "test_count": 8,
-      "estimated_tokens": 1953,
+      "estimated_tokens": 1956,
       "load_condition": "on_demand"
     },
     {
@@ -115,7 +115,7 @@
       "path": "native.test.mjs",
       "type": "node:test",
       "test_count": 12,
-      "estimated_tokens": 3174,
+      "estimated_tokens": 3182,
       "load_condition": "on_demand"
     },
     {
@@ -123,7 +123,7 @@
       "path": "chrome-extension/core.test.mjs",
       "type": "node:test",
       "test_count": 9,
-      "estimated_tokens": 1615,
+      "estimated_tokens": 1612,
       "load_condition": "on_demand"
     },
     {
@@ -131,7 +131,7 @@
       "path": "chrome-extension/observer.test.mjs",
       "type": "node:test",
       "test_count": 9,
-      "estimated_tokens": 1797,
+      "estimated_tokens": 1801,
       "load_condition": "on_demand"
     },
     {
@@ -139,7 +139,7 @@
       "path": "chrome-extension/native.test.mjs",
       "type": "node:test",
       "test_count": 10,
-      "estimated_tokens": 2872,
+      "estimated_tokens": 2880,
       "load_condition": "on_demand"
     }
   ],
@@ -181,7 +181,7 @@
     },
     {
       "path": ".skill/notes/version_history.md",
-      "estimated_tokens": 2334,
+      "estimated_tokens": 2611,
       "load_condition": "on_demand"
     },
     {
@@ -240,6 +240,6 @@
       "load_condition": "on_demand"
     }
   ],
-  "total_estimated_tokens": 132025,
+  "total_estimated_tokens": 131754,
   "always_load_estimated_tokens": 2469
 }

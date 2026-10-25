@@ -30,7 +30,7 @@ test('F8 down/up and long press trigger once; keyup fallback handles consumed ke
   h.fire('keyup');assert.equal(h.messages.length,2);
   h.fire('keydown',{code:'',key:'F8'});h.fire('keyup',{code:'',key:'F8'});
   assert.equal(h.messages.length,3);
-  await flush();assert.ok(h.notices.some(text=>text.includes('已收到 F8')));
+  await flush();assert.ok(h.notices.some(text=>text.includes('F8 received')));
 });
 
 test('typing, modifiers, synthetic events and inactive document never dispatch',()=>{
@@ -47,16 +47,16 @@ test('typing, modifiers, synthetic events and inactive document never dispatch',
 });
 
 test('repair replaces listeners and surfaces background rejection',async()=>{
-  const h=harness(()=>Promise.resolve({ok:false,error:'遊戲分頁未啟用'}));
+  const h=harness(()=>Promise.resolve({ok:false,error:'The game tab is inactive'}));
   h.install();h.install();
   assert.equal(h.listeners.get('keydown').size,1);assert.equal(h.listeners.get('keyup').size,1);
   h.fire('keydown');h.fire('keyup');await flush();
-  assert.equal(h.messages.length,1);assert.match(h.notices.at(-1),/未啟用/);
+  assert.equal(h.messages.length,1);assert.match(h.notices.at(-1),/inactive/);
 });
 
 test('invalidated extension and missing response are visible instead of silently ignored',async()=>{
   for(const reply of [()=>{throw new Error('invalidated');},()=>Promise.reject(new Error('closed')),()=>Promise.resolve(undefined)]){
     const h=harness(reply);h.fire('keyup');await flush();
-    assert.equal(h.messages.length,1);assert.match(h.notices.at(-1),/重新整理/);
+    assert.equal(h.messages.length,1);assert.match(h.notices.at(-1),/refresh/i);
   }
 });

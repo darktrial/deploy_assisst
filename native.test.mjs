@@ -33,12 +33,12 @@ test('native sequence correlates only the newly created queue and acknowledges e
   assert.deepEqual(h.sleeps,[],'ready game replies should proceed without a fixed startup sleep');
 });
 test('native timeout never retries dispatch or sends speedups',async()=>{
-  const h=runnerHarness({boosts:2,timeout:true});await assert.rejects(h.run(),/逾時/);
+  const h=runnerHarness({boosts:2,timeout:true});await assert.rejects(h.run(),/timed out/);
   assert.equal(h.calls.filter(c=>c.command==='dispatch').length,1);
   assert.equal(h.calls.filter(c=>c.command==='boost').length,0);
 });
 test('ambiguous new marches and cancellation stop before speedup',async()=>{
-  const a=runnerHarness({boosts:1,ambiguous:true});await assert.rejects(a.run(),/多支/);
+  const a=runnerHarness({boosts:1,ambiguous:true});await assert.rejects(a.run(),/Multiple new marches/);
   assert.equal(a.calls.some(c=>c.command==='boost'),false);
   const b=runnerHarness({boosts:1,cancel:true});await assert.rejects(b.run(),/stopped/);
   assert.equal(b.calls.some(c=>c.command==='open'),false);
@@ -48,10 +48,10 @@ test('a new march that has already arrived is confirmed without consuming speedu
   await h.run();assert.equal(h.calls.some(c=>c.command==='boost'),false);
 });
 test('stale target, unavailable inventory and invalid parameters fail before mutation',async()=>{
-  const a=runnerHarness({boosts:1});a.s.target=9;await assert.rejects(a.run(),/目標/);
+  const a=runnerHarness({boosts:1});a.s.target=9;await assert.rejects(a.run(),/[Tt]arget/);
   assert.equal(a.calls.filter(c=>c.command!=='inspect').length,0);
-  const b=runnerHarness({boosts:2});b.s.boostInventory=1;await assert.rejects(b.run(),/不足/);
-  const c=runnerHarness();c.s.blockingWindows=['ConfirmWindow'];await assert.rejects(c.run(),/提示視窗/);
+  const b=runnerHarness({boosts:2});b.s.boostInventory=1;await assert.rejects(b.run(),/Insufficient/);
+  const c=runnerHarness();c.s.blockingWindows=['ConfirmWindow'];await assert.rejects(c.run(),/blocking game dialogs/);
   assert.equal(c.calls.some(x=>x.command!=='inspect'),false);
   for(const patch of [{boosts:3},{boosts:-1},{preset:0},{target:0}])assert.throws(()=>validateNativeOptions({preset:1,target:349641,boosts:0,...patch}));
 });
@@ -110,16 +110,16 @@ test('page bridge invokes only matched original collection and boost methods',as
   await nativeInPage(h.profile,'boost',{target:349641,queueId:'42',marchId:'4899549206363294',itemId:10303,count:1},false);
   assert.deepEqual(h.calls.map(c=>c.key),['collect','boost']);
   assert.deepEqual(h.calls[1].args,[h.qp,42,10303,1,h.methods.boost]);
-  await assert.rejects(nativeInPage(h.profile,'boost',{target:349641,queueId:'old',marchId:'4899549206363294',itemId:10303,count:1},false),/指定行軍/);
-  await assert.rejects(nativeInPage(h.profile,'boost',{target:349641,queueId:'42',marchId:'4899549206363294',itemId:10303,count:2},false),/數量/);
+  await assert.rejects(nativeInPage(h.profile,'boost',{target:349641,queueId:'old',marchId:'4899549206363294',itemId:10303,count:1},false),/specified march/);
+  await assert.rejects(nativeInPage(h.profile,'boost',{target:349641,queueId:'42',marchId:'4899549206363294',itemId:10303,count:2},false),/quantity/);
 });
 test('page bridge refuses incorrect fingerprints, method pointers and occupied resource points',async()=>{
   const h=memoryFixture();
-  await assert.rejects(nativeInPage(h.profile,'inspect',{},true),/指紋/);assert.equal(h.calls.length,0);
+  await assert.rejects(nativeInPage(h.profile,'inspect',{},true),/fingerprint/);assert.equal(h.calls.length,0);
   h.put(h.methods.collect,42);
-  await assert.rejects(nativeInPage(h.profile,'open',{target:349641},false),/版本不符/);assert.equal(h.calls.length,0);
+  await assert.rejects(nativeInPage(h.profile,'open',{target:349641},false),/version mismatch/);assert.equal(h.calls.length,0);
   h.view.setBigInt64(h.server+24,10n,true);
-  await assert.rejects(nativeInPage(h.profile,'open',{target:349641},false),/已有行軍/);
+  await assert.rejects(nativeInPage(h.profile,'open',{target:349641},false),/already has a march/);
 });
 test('page bridge applies a preset and uses the original Go handler with target checks',async()=>{
   const h=memoryFixture();h.heap[h.resource+36]=0;h.heap[h.panel+36]=1;
@@ -128,9 +128,9 @@ test('page bridge applies a preset and uses the original Go handler with target 
   await nativeInPage(h.profile,'dispatch',{target:349641,preset:1},false);
   assert.deepEqual(h.calls.map(c=>c.key),['clear','preset','dispatch']);
   assert.deepEqual(h.calls[2].args,[h.panel,0,h.methods.dispatch]);
-  await assert.rejects(nativeInPage(h.profile,'dispatch',{target:349640,preset:1},false),/目標/);
+  await assert.rejects(nativeInPage(h.profile,'dispatch',{target:349640,preset:1},false),/[Tt]arget/);
   h.put(h.show+192,1);
-  await assert.rejects(nativeInPage(h.profile,'dispatch',{target:349641,preset:1},false),/一般資源採集/);
+  await assert.rejects(nativeInPage(h.profile,'dispatch',{target:349641,preset:1},false),/ordinary resource gathering/);
 });
 test('scripting client pins the unique Unity document in MAIN and verifies the initial hash',async()=>{
   const calls=[];
@@ -150,7 +150,7 @@ test('scripting client pins the unique Unity document in MAIN and verifies the i
 
 test('scripting client refuses ambiguity, changed documents and page errors without retry',async()=>{
   const ambiguous=new NativeClient(1,async()=>[{documentId:'a',result:true},{documentId:'b',result:true}]);
-  await assert.rejects(ambiguous.connect(profile),/唯一/);
+  await assert.rejects(ambiguous.connect(profile),/unique/);
   for(const result of [{documentId:'new',result:{}},{documentId:'unity',result:{__gtError:'version failed'}},{documentId:'unity'}]){
     let calls=0;
     const client=new NativeClient(1,async()=>{calls++;return [result];});
@@ -168,5 +168,5 @@ test('progress omits army enumeration and transport errors are explicit',async()
   assert.equal(s.boostInventory,9);assert.equal(s.queues[0].uid,'42');
   assert.equal('presets' in s,false);assert.equal(h.calls.length,0);
   const error=await nativeInPage(h.profile,'inspect',{},true,true);
-  assert.match(error.__gtError,/指紋/);
+  assert.match(error.__gtError,/fingerprint/);
 });
