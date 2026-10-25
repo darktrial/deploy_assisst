@@ -4,14 +4,16 @@
 
 | 檔案 | 計數 | 主要場景／oracle |
 | --- | --- | --- |
+| activation.test.mjs | 8 | 模式預設／切換、真實點擊、重複／佔用／blocking／combat／focus／gesture 拒絕、穩定選取與取消 |
+| activation-background.test.mjs | 1 | storage 保存、來源與 documentId、唯讀準備、一次出征、busy 鎖、stop 切手動 |
 | hotkey.test.mjs | 4 | VM 執行真實 hotkey.js；訊息次數、preventDefault 次數；repeat／輸入／modifier／非 trusted 被忽略 |
 | one-click.test.mjs | 8 | preset=1、一次 dispatch、超過兩次 boost、≤1 秒邊界、經過時間、無效時間、加速缺回應不重送、0/1 庫存、抵達 timeout、queue 消失、停止、busy、傳訊拒絕、僅修復監聽器 |
-| native.test.mjs | 12 | 呼叫順序／不重送、唯一新 queue、目標／庫存／視窗、IL2CPP fixture、指紋／method 指標拒絕、scripting documentId／錯誤 envelope／progress |
+| native.test.mjs | 15 | 呼叫順序／不重送、唯一新 queue、目標／庫存／視窗、IL2CPP fixture、指紋／method 指標拒絕、scripting documentId／錯誤 envelope／progress |
 | chrome-extension/core.test.mjs | 9（含子測試） | 校準、去敏感資訊、boost opt-in、座標、焦點、mouse release、detach |
 | chrome-extension/observer.test.mjs | 9 | 脫敏、binary 選項、標記、子目標、HTTP body、容量與時間上限、停止與儲存失敗 |
 | chrome-extension/native.test.mjs | 10 | 舊版 native runner 與同版記憶體／CDP fixture |
 
-合計 52 項。數字是這次驗證快照，新增測項後以 Node 輸出為準；不以測試數量或文字覆蓋率代表完整產品正確性。
+合計 68 項。數字是這次驗證快照，新增測項後以 Node 輸出為準；不以測試數量或文字覆蓋率代表完整產品正確性。
 
 ## Fixture 與限制
 
@@ -31,4 +33,4 @@
 
 ## 回歸選擇
 
-改主流程：跑主版 24 項。改橋接／profile：評估兩份 native 檔並跑兩組 native 測試及相關產品測試。改舊版 observer/controller：跑 observer/core 與隔離 smoke。搬檔／打包：完整 `node tools/verify.mjs`、Python 語法、ZIP 白名單與相對路徑檢查。已通過且沒有新改動／失敗時，不反覆重跑同一批測試。
+改主流程：跑主版 40 項。改橋接／profile：評估兩份 native 檔並跑兩組 native 測試及相關產品測試。改舊版 observer/controller：跑 observer/core 與隔離 smoke。搬檔／打包：完整 `node tools/verify.mjs`、Python 語法、ZIP 白名單與相對路徑檢查。已通過且沒有新改動／失敗時，不反覆重跑同一批測試。

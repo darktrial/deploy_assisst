@@ -9,6 +9,7 @@
 | WASM fn table 呼叫 | 完整 SHA／size，類別、方法、args、slot、arity 全數匹配 | profile 改版需離線資料與執行狀態證據；方法 fixture 不等於版本驗證 |
 | DataView／HEAPU8 讀取 | range、list/dictionary count 與容量、字串長度限制；i64 字串保存 | 不把校驗搬到讀取之後；查核所有新增欄位的正確尺寸與 signedness |
 | queueId → Number | 只在 boost 原生入口需要 int32，先檢查十進位與上限 2147483647 | 不對 marchId 做 Number 轉換；測大 ID 與錯誤 target |
+| 點選即執行 | storage.local 預設 manual；允許來源、唯一 documentId、trusted canvas gesture、新資源、focus、blocking 與 mutation 前再核對 | 切換模式不出征；drag／重複／過期 gesture 拒絕；停止切手動；無攻擊入口備援 |
 | 非同步出征／加速 | busy、check、目標不變、唯一新 queue、ack 後下一步；缺回應不重送 | 停止只阻止後續動作；不能宣稱已送指令可撤回 |
 | UI 文字輸出 | status 使用 textContent／createTextNode | 新增外部文字不可直接放 innerHTML |
 | observer payload | URL 去 query/fragment、known secret 文字遮蔽、大小上限 | 二進位是不透明資料；不承諾完全脫敏，不放公開包或圖譜 |

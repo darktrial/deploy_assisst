@@ -24,6 +24,8 @@ metadata:
 
 主鏈：`hotkey.js → runtime message → background.start → NativeClient.connect → runOneClick → runNative → NativeClient.call → nativeInPage → 遊戲原生方法`。Chrome action 直接進入 `start`，不經 content script。
 
+點選模式：`auto-trigger.js → autoPrepare/autoRun → background.start → selectedResource → runOneClick`。`storage.local.activationMode` 預設 manual；selection 啟用時在 MAIN world 安裝唯讀 selection watcher，真實 pointerdown 擷取之前狀態、pointerup 建立一次性 gesture。依 documentId、焦點、gestureId、新資源、兩次穩定讀取與每次 mutation 前再次核對；停止會儲存 manual。
+
 - `runOneClick(client, snapshot, deps)` 固定 `preset=1`、`remainingSeconds=1`，不設固定道具數上限；回傳含 `arrived:true` 的結果前，要確認同一 target／queue／march 的採集狀態。
 - `runNative(client, {preset,target,remainingSeconds:1}, {check,sleep,note,now})` 開面板、套 preset、出征、關聯唯一新 queue、逐次加速；其完成不等同抵達。
 - 主版 `NativeClient.connect(profile)` 透過 scripting MAIN 找唯一 Unity document，校驗完整 WASM；`call(command,args,verifyHash=false)` 綁定 documentId，檢查錯誤 envelope，不附加 debugger。舊版另保留 CDP client。
@@ -40,7 +42,7 @@ metadata:
 
 ## 4. 單元測試
 
-使用 `node:test` 與 `assert/strict`，主版本 24 項、舊版 28 項（含子測試）。`tools/verify.mjs` 直接測本目錄來源，保存命令、exit code、Node 版本與 SHA-256；沒有測試用複製原始碼或 ABI 差異。
+使用 `node:test` 與 `assert/strict`，主版本 40 項、舊版 28 項（含子測試）。`tools/verify.mjs` 直接測本目錄來源，保存命令、exit code、Node 版本與 SHA-256；沒有測試用複製原始碼或 ABI 差異。
 
 修改時依 [testing](references/testing.md) 選擇 fixture 與負向場景。記憶體 fixture、CDP mock、F8 VM 測試與隔離 UI smoke 都不是已安裝 extension 的 E2E。2026-10-25 的原生實測摘要可證實當時的遊戲原生流程，不能替代當前工具列／F8 實機驗證。
 
@@ -86,3 +88,7 @@ Graphify 是調查線索。對同名函式使用完整 node ID；AST 缺漏與 c
 模板提及的 `.github/firmware-code-review-instructions.md` 與中央歷史規範在本專案不存在；本專案證據格式使用 [review rubric](references/rubrics/code_review_rubric.md)，不宣稱已符合未提供的中央流程。
 
 預定歷史位置為 `notes/code-review-history.md`，尚未建立：本次是搬移、研讀與文件生成，沒有正式完整審查證據。不要建立虛構歷史或有效基準；未來取得實際 review 後才保存可追溯 source/diff、finding、驗證與限制，並加入資源索引。沒有有效基準不能據此略過後續審查。
+
+### v1.4.0 攻擊擴充
+
+一般其他玩家城堡採用 CastleInfoWindow.Attack，snapshot.kind 與每次 open/preset/dispatch 綁定 resource/castle。點選穩定比較包含類型與 grid；攻擊沿用 preset1 與 ≤1 秒加速，回傳 arrived:false，不宣稱戰果。特殊戰場、自己城堡與額外確認視窗停止。現場只驗證原生面板與欄位，未真實出征；證據見 architecture 與 version_history。

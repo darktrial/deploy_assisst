@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "GT One-Click Dispatch",
-  "version": "1.2.1",
+  "version": "1.4.0",
   "description": "Select a resource point, apply army preset slot 1, dispatch, and speed up until estimated travel time is at most 1 second.",
   "minimum_chrome_version": "125",
   "permissions": [
@@ -19,7 +19,8 @@
         "https://logins-gotpc.gtarcade.com/*"
       ],
       "js": [
-        "hotkey.js"
+        "hotkey.js",
+        "auto-trigger.js"
       ],
       "all_frames": true,
       "run_at": "document_start"

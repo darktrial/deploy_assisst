@@ -9,6 +9,8 @@
       "name": "one-click",
       "type": "chrome-mv3",
       "source_files": [
+        "activation.mjs",
+        "auto-trigger.js",
         "background.js",
         "hotkey.js",
         "manifest.json",
@@ -20,7 +22,7 @@
         "status.html",
         "status.js"
       ],
-      "estimated_tokens": 7879,
+      "estimated_tokens": 12426,
       "load_condition": "on_demand"
     },
     {
@@ -66,7 +68,7 @@
         "tools/package.py",
         "tools/verify.mjs"
       ],
-      "estimated_tokens": 893,
+      "estimated_tokens": 903,
       "load_condition": "on_demand"
     },
     {
@@ -79,7 +81,7 @@
         ".gitignore",
         ".graphifyignore"
       ],
-      "estimated_tokens": 7802,
+      "estimated_tokens": 8818,
       "load_condition": "on_demand"
     },
     {
@@ -89,11 +91,27 @@
         "graphify-out/graph.json",
         "graphify-out/GRAPH_REPORT.md"
       ],
-      "estimated_tokens": 50161,
+      "estimated_tokens": 55537,
       "load_condition": "on_demand"
     }
   ],
   "test_files": [
+    {
+      "name": "activation.test.mjs",
+      "path": "activation.test.mjs",
+      "type": "node:test",
+      "test_count": 8,
+      "estimated_tokens": 1772,
+      "load_condition": "on_demand"
+    },
+    {
+      "name": "activation-background.test.mjs",
+      "path": "activation-background.test.mjs",
+      "type": "node:test",
+      "test_count": 1,
+      "estimated_tokens": 1124,
+      "load_condition": "on_demand"
+    },
     {
       "name": "hotkey.test.mjs",
       "path": "hotkey.test.mjs",
@@ -107,15 +125,15 @@
       "path": "one-click.test.mjs",
       "type": "node:test",
       "test_count": 8,
-      "estimated_tokens": 1956,
+      "estimated_tokens": 2101,
       "load_condition": "on_demand"
     },
     {
       "name": "native.test.mjs",
       "path": "native.test.mjs",
       "type": "node:test",
-      "test_count": 12,
-      "estimated_tokens": 3182,
+      "test_count": 15,
+      "estimated_tokens": 4585,
       "load_condition": "on_demand"
     },
     {
@@ -151,12 +169,12 @@
     },
     {
       "path": ".skill/SKILL.md",
-      "estimated_tokens": 2469,
+      "estimated_tokens": 2729,
       "load_condition": "always"
     },
     {
       "path": ".skill/notes/graph-explain.txt",
-      "estimated_tokens": 148,
+      "estimated_tokens": 137,
       "load_condition": "on_demand"
     },
     {
@@ -166,7 +184,7 @@
     },
     {
       "path": ".skill/notes/graph-query.txt",
-      "estimated_tokens": 576,
+      "estimated_tokens": 556,
       "load_condition": "on_demand"
     },
     {
@@ -176,17 +194,17 @@
     },
     {
       "path": ".skill/notes/verification.json",
-      "estimated_tokens": 4047,
+      "estimated_tokens": 5179,
       "load_condition": "on_demand"
     },
     {
       "path": ".skill/notes/version_history.md",
-      "estimated_tokens": 2611,
+      "estimated_tokens": 4176,
       "load_condition": "on_demand"
     },
     {
       "path": ".skill/references/architecture.md",
-      "estimated_tokens": 1718,
+      "estimated_tokens": 2978,
       "load_condition": "on_demand"
     },
     {
@@ -196,7 +214,7 @@
     },
     {
       "path": ".skill/references/graphify.md",
-      "estimated_tokens": 1032,
+      "estimated_tokens": 1188,
       "load_condition": "on_demand"
     },
     {
@@ -206,7 +224,7 @@
     },
     {
       "path": ".skill/references/safety.md",
-      "estimated_tokens": 1050,
+      "estimated_tokens": 1133,
       "load_condition": "on_demand"
     },
     {
@@ -221,7 +239,7 @@
     },
     {
       "path": ".skill/references/testing.md",
-      "estimated_tokens": 1067,
+      "estimated_tokens": 1153,
       "load_condition": "on_demand"
     },
     {
@@ -236,10 +254,10 @@
     },
     {
       "path": ".skill/scripts/resources.py",
-      "estimated_tokens": 891,
+      "estimated_tokens": 907,
       "load_condition": "on_demand"
     }
   ],
-  "total_estimated_tokens": 131754,
-  "always_load_estimated_tokens": 2469
+  "total_estimated_tokens": 151674,
+  "always_load_estimated_tokens": 2729
 }

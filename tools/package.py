@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 COMMON = ['manifest.json', 'background.js', 'native-client.mjs', 'native-page.mjs',
           'native-profile.json', 'native-runner.mjs', 'README.md']
 TARGETS = [
-    (ROOT, 'gt-one-click.zip', COMMON + ['hotkey.js', 'one-click.mjs', 'status.html', 'status.js']),
+    (ROOT, 'gt-one-click.zip', COMMON + ['auto-trigger.js', 'activation.mjs', 'hotkey.js', 'one-click.mjs', 'status.html', 'status.js']),
     (ROOT / 'chrome-extension', 'gt-gather-helper.zip', COMMON + [
         'controller.html', 'controller.js', 'core.mjs', 'observer.mjs',
         'starter-profile.json', 'style.css']),

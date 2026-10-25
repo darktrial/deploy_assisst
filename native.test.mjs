@@ -97,7 +97,7 @@ function memoryFixture(){
   const module={HEAPU8:heap,HEAPU32:new Uint32Array(buffer),wasmBinary:new Uint8Array(8),asm:{__indirect_function_table:{get:i=>table.get(i)}}};
   local.wasmBytes=8;
   globalThis.window={gameInstance:{Module:module}};
-  return {profile:local,calls,module,put,view,klass,object,dict,gui,resource,server,qp,methods,panel,show,heap};
+  return {setMethods,profile:local,calls,module,put,view,klass,object,dict,gui,resource,server,qp,methods,panel,show,heap};
 }
 test('page bridge reads typed presets, queues and inventory without invoking a native method',async()=>{
   const h=memoryFixture(),s=await nativeInPage(h.profile,'inspect',{},false);
@@ -169,4 +169,93 @@ test('progress omits army enumeration and transport errors are explicit',async()
   assert.equal('presets' in s,false);assert.equal(h.calls.length,0);
   const error=await nativeInPage(h.profile,'inspect',{},true,true);
   assert.match(error.__gtError,/fingerprint/);
+});
+
+
+test('MAIN selection observer captures pre-click state, claims once, rejects drags and makes no native calls',async()=>{
+  const h=memoryFixture(),listeners=new Map();
+  globalThis.document={hasFocus:()=>true};
+  window.addEventListener=(name,fn)=>{if(!listeners.has(name))listeners.set(name,new Set());listeners.get(name).add(fn);};
+  window.removeEventListener=(name,fn)=>listeners.get(name)?.delete(fn);
+  const fire=(name,patch={})=>{for(const fn of listeners.get(name)||[])fn({isTrusted:true,button:0,pointerId:1,clientX:10,clientY:10,target:{id:'unity-canvas'},...patch});};
+  try {
+    await nativeInPage(h.profile,'watchSelection',{},false);
+    assert.deepEqual(await nativeInPage(h.profile,'selectionGesture',{},false),{gesture:null});
+    h.heap[h.resource+36]=0;
+    fire('pointerdown');h.heap[h.resource+36]=1;fire('pointerup');
+    fire('blur',{target:{tagName:'INPUT',id:'troop-count'}});
+    assert.ok(window.__gtSelectionWatch.gesture,'an element blur inside the game must not cancel selection');
+    const claimed=await nativeInPage(h.profile,'selectionGesture',{},false);
+    assert.equal(claimed.gesture.before.source,'none');
+    assert.equal((await nativeInPage(h.profile,'selection',{},false)).target,349641);
+    assert.deepEqual(await nativeInPage(h.profile,'selectionGesture',{},false),{gesture:null});
+    fire('pointerdown');fire('pointermove',{clientX:40});fire('pointermove');fire('pointerup');
+    assert.deepEqual(await nativeInPage(h.profile,'selectionGesture',{},false),{gesture:null});
+    fire('pointerdown',{isTrusted:false});fire('pointerup',{isTrusted:false});
+    assert.deepEqual(await nativeInPage(h.profile,'selectionGesture',{},false),{gesture:null});
+    await nativeInPage(h.profile,'watchSelection',{},false);
+    assert.equal(listeners.get('pointerdown').size,1);
+    fire('pointerdown');fire('blur',{target:window});fire('pointerup');
+    assert.deepEqual(await nativeInPage(h.profile,'selectionGesture',{},false),{gesture:null});
+    assert.equal(h.calls.length,0);
+  } finally {window.__gtSelectionWatch?.dispose();delete globalThis.document;}
+});
+
+
+test('selection waits for null resource data but never accepts the wrong class',async()=>{
+  const h=memoryFixture();globalThis.document={hasFocus:()=>true};
+  const param=h.view.getUint32(h.resource+60,true);
+  try {
+    h.put(h.resource+60,0);
+    assert.equal((await nativeInPage(h.profile,'selection',{},false)).source,'pending');
+    await assert.rejects(nativeInPage(h.profile,'open',{target:349641},false),/ResourcesInfoParam/);
+    h.put(h.resource+60,param);h.put(param+20,0);
+    assert.equal((await nativeInPage(h.profile,'selection',{},false)).source,'pending');
+    h.put(param+20,h.server);
+    assert.equal((await nativeInPage(h.profile,'selection',{},false)).target,349641);
+    h.put(h.resource+60,h.server);
+    await assert.rejects(nativeInPage(h.profile,'selection',{},false),/ResourcesInfoParam/);
+    assert.equal(h.calls.length,0);
+  } finally {delete globalThis.document;}
+});
+test('dispatch panel takes priority over a still-visible resource window with cleared parameters',async()=>{
+  const h=memoryFixture();globalThis.document={hasFocus:()=>true};
+  try {
+    h.put(h.resource+60,0);h.heap[h.panel+36]=1;
+    assert.equal((await nativeInPage(h.profile,'selection',{},false)).source,'dispatch');
+    assert.equal((await nativeInPage(h.profile,'inspect',{},false)).source,'dispatch');
+    const updated=await nativeInPage(h.profile,'preset',{target:349641,preset:1},false);
+    assert.equal(updated.panel.preset,1);
+    assert.deepEqual(h.calls.map(c=>c.key),['clear','preset']);
+    assert.equal((await nativeInPage(h.profile,'verify',{},false)).verified,true);
+  } finally {delete globalThis.document;}
+});
+
+function castleFixture(){
+  const h=memoryFixture(),c=h.object('CastleInfoWindow'),p=h.object('CastleInfoParam'),server=h.object('WorldCastle');
+  h.heap[h.resource+36]=0;h.heap[c+36]=1;h.put(c+56,p);h.put(p+24,server);h.heap[p+36]=1;h.put(p+32,4);h.put(server+8,349641);
+  h.put(h.gui+32,h.dict([[1,c],[2,h.panel]]));h.setMethods('CastleInfoWindow',['attack']);
+  return {...h,c,param:p};
+}
+test('ordinary castle selection uses verified Attack entry, never collection',async()=>{
+  const h=castleFixture();globalThis.document={hasFocus:()=>true};
+  assert.equal((await nativeInPage(h.profile,'selection',{},false)).source,'castle');
+  assert.equal((await nativeInPage(h.profile,'inspect',{},false)).kind,'castle');
+  await nativeInPage(h.profile,'open',{target:349641,kind:'castle'},false);
+  assert.deepEqual(h.calls.map(c=>c.key),['attack']);
+  assert.deepEqual(h.calls[0].args,[h.c,h.methods.attack]);
+  h.put(h.methods.attack,1);
+  await assert.rejects(nativeInPage(h.profile,'open',{target:349641,kind:'castle'},false),/version mismatch/);
+});
+test('castle guard rejects own castles, special wars and stale kind before mutation',async()=>{
+  for(const offset of [64,100,104]){
+    const h=castleFixture();h.put(h.c+offset,1);
+    await assert.rejects(nativeInPage(h.profile,'open',{target:349641,kind:'castle'},false),/Only ordinary/);
+    assert.equal(h.calls.length,0);
+  }
+  const h=castleFixture();h.heap[h.c+36]=0;h.heap[h.panel+36]=1;h.put(h.show+24,2);h.put(h.show+176,4);
+  await assert.rejects(nativeInPage(h.profile,'preset',{target:349641,preset:1,kind:'resource'},false),/target changed/);
+  await nativeInPage(h.profile,'preset',{target:349641,preset:1,kind:'castle'},false);
+  await nativeInPage(h.profile,'dispatch',{target:349641,preset:1,kind:'castle'},false);
+  assert.deepEqual(h.calls.map(c=>c.key),['clear','preset','dispatch']);
 });

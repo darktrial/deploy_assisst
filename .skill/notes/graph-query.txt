@@ -1,30 +1,29 @@
-Graph: graphify-out/graph.json (260 nodes) | Traversal: BFS depth=2 | Start (given): ['runOneClick()'] | Context: call (explicit) | 14 nodes found
+Graph: graphify-out/graph.json (284 nodes) | Traversal: BFS depth=2 | Start (given): ['selectedResource()'] | Context: call (explicit) | 13 nodes found
 
-NODE runOneClick() [src=one-click.mjs loc=L10 community=Community 1]
-NODE start() [src=background.js loc=L39 community=Community 1]
-NODE runNative() [src=native-runner.mjs loc=L9 community=Community 1]
-NODE harness() [src=one-click.test.mjs loc=L5 community=Community 1]
-NODE runnerHarness() [src=native.test.mjs loc=L11 community=Community 1]
-NODE background.js [src=background.js loc=L1 community=Community 1]
-NODE check() [src=background.js loc=L25 community=Community 1]
-NODE note() [src=background.js loc=L16 community=Community 1]
-NODE persist() [src=background.js loc=L11 community=Community 1]
-NODE gamePage() [src=one-click.mjs loc=L3 community=Community 1]
-NODE one-click.test.mjs [src=one-click.test.mjs loc=L1 community=Community 1]
-NODE badge() [src=background.js loc=L34 community=Community 1]
-NODE NativeClient [src=native-client.mjs loc=L4 community=Community 1]
-NODE validateNativeOptions() [src=native-runner.mjs loc=L1 community=Community 1]
-EDGE start() --calls [EXTRACTED context=call]--> runOneClick() at=background.js:L55
-EDGE runOneClick() --calls [EXTRACTED context=call]--> runNative() at=one-click.mjs:L19
-EDGE harness() --calls [EXTRACTED context=call]--> runOneClick() at=one-click.test.mjs:L22
-EDGE one-click.test.mjs --calls [EXTRACTED context=call]--> harness() at=one-click.test.mjs:L30
-EDGE start() --calls [EXTRACTED context=call]--> NativeClient at=background.js:L51
-EDGE start() --calls [EXTRACTED context=call]--> badge() at=background.js:L47
-EDGE start() --calls [EXTRACTED context=call]--> check() at=background.js:L50
-EDGE start() --calls [EXTRACTED context=call]--> note() at=background.js:L48
-EDGE start() --calls [EXTRACTED context=call]--> persist() at=background.js:L65
-EDGE background.js --calls [EXTRACTED context=call]--> start() at=background.js:L69
-EDGE start() --calls [EXTRACTED context=call]--> gamePage() at=background.js:L45
-EDGE runNative() --calls [EXTRACTED context=call]--> validateNativeOptions() at=native-runner.mjs:L10
-EDGE runnerHarness() --calls [EXTRACTED context=call]--> runNative() at=native.test.mjs:L25
-EDGE note() --calls [EXTRACTED context=call]--> persist() at=background.js:L22
+NODE selectedResource() [src=activation.mjs loc=L2 community=Community 1]
+NODE start() [src=background.js loc=L73 community=Community 2]
+NODE harness() [src=activation.test.mjs loc=L9 community=Community 1]
+NODE background.js [src=background.js loc=L1 community=Community 2]
+NODE connect() [src=background.js loc=L18 community=Community 2]
+NODE activation.test.mjs [src=activation.test.mjs loc=L1 community=Community 1]
+NODE activationMode() [src=background.js loc=L12 community=Community 2]
+NODE runOneClick() [src=one-click.mjs loc=L10 community=Community 2]
+NODE check() [src=background.js loc=L59 community=Community 2]
+NODE note() [src=background.js loc=L50 community=Community 2]
+NODE persist() [src=background.js loc=L45 community=Community 2]
+NODE gamePage() [src=one-click.mjs loc=L3 community=Community 2]
+NODE badge() [src=background.js loc=L68 community=Community 2]
+EDGE harness() --calls [EXTRACTED context=call]--> selectedResource() at=activation.test.mjs:L11
+EDGE start() --calls [EXTRACTED context=call]--> selectedResource() at=background.js:L92
+EDGE activation.test.mjs --calls [EXTRACTED context=call]--> harness() at=activation.test.mjs:L18
+EDGE start() --calls [EXTRACTED context=call]--> activationMode() at=background.js:L86
+EDGE start() --calls [EXTRACTED context=call]--> badge() at=background.js:L82
+EDGE start() --calls [EXTRACTED context=call]--> check() at=background.js:L85
+EDGE start() --calls [EXTRACTED context=call]--> connect() at=background.js:L87
+EDGE start() --calls [EXTRACTED context=call]--> note() at=background.js:L83
+EDGE start() --calls [EXTRACTED context=call]--> persist() at=background.js:L127
+EDGE background.js --calls [EXTRACTED context=call]--> start() at=background.js:L131
+EDGE start() --calls [EXTRACTED context=call]--> runOneClick() at=background.js:L114
+EDGE start() --calls [EXTRACTED context=call]--> gamePage() at=background.js:L80
+EDGE background.js --calls [EXTRACTED context=call]--> activationMode() at=background.js:L164
+EDGE note() --calls [EXTRACTED context=call]--> persist() at=background.js:L56

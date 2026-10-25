@@ -27,7 +27,12 @@ export async function nativeInPage(profile, command, args = {}, verifyHash = tru
   };
   const layout=profile.classLayout;
   const className=object=>cstr(u32(u32(object)+layout.name));
-  const assertClass=(object,name)=>{if(!object||className(object)!==name)throw new Error(`Game object ${name} is not ready.`);return object;};
+  const assertClass=(object,name)=>{
+    if(!object)throw new Error(`Game object ${name} is not ready.`);
+    const actual=className(object);
+    if(actual!==name)throw new Error(`Game object ${name} class mismatch (got ${actual}).`);
+    return object;
+  };
   const staticFields=name=>{
     const klass=u32(profile.types[name]);
     if(cstr(u32(klass+layout.name))!==name||cstr(u32(klass+layout.namespace))!=='Yoozoo.Mars.Got' && name!=='WarHallPlugin')throw new Error('Game class version mismatch.');
@@ -100,41 +105,112 @@ export async function nativeInPage(profile, command, args = {}, verifyHash = tru
   const panel=()=>{
     const p=visible('SendtrooppanelWindow');if(!p)return null;
     const s=assertClass(u32(p+52),'ShowViewParam');
-    if(i32(s+24)!==0||i32(s+176)!==2||i32(s+192)!==0||u8(s+257)||u8(s+186))throw new Error('The current dispatch panel is not for ordinary resource gathering.');
-    return {object:p,target:i32(s+156),preset:i32(p+184),soldiers:i64(p+112),show:s};
+    const kind=i32(s+24)===0&&i32(s+176)===2?'resource':i32(s+24)===2&&i32(s+176)===4?'castle':null;
+    if(!kind||i32(s+192)!==0||u8(s+257)||u8(s+186))throw new Error('The current dispatch panel is not for ordinary resource gathering or castle attack.');
+    return {object:p,kind,target:i32(s+156),preset:i32(p+184),soldiers:i64(p+112),show:s};
   };
-  const resource=()=>{
+  const resource=(allowPending=false)=>{
     const p=visible('ResourcesInfoWindow');if(!p)return null;
-    const param=assertClass(u32(p+60),'ResourcesInfoParam'),server=assertClass(u32(param+20),'WorldMapObject');
+    const paramPointer=u32(p+60);
+    if(!paramPointer && allowPending)return {pending:true};
+    const param=assertClass(paramPointer,'ResourcesInfoParam');
+    const serverPointer=u32(param+20);
+    if(!serverPointer && allowPending)return {pending:true};
+    const server=assertClass(serverPointer,'WorldMapObject');
     return {object:p,target:i32(server+8),occupied:i64(server+24)!=='0'};
   };
+  const castle=(allowPending=false)=>{
+    const p=visible('CastleInfoWindow');if(!p)return null;
+    const paramPointer=u32(p+56);if(!paramPointer&&allowPending)return {pending:true};
+    const param=assertClass(paramPointer,'CastleInfoParam');
+    const serverPointer=u32(param+24);if(!serverPointer&&allowPending)return {pending:true};
+    const server=assertClass(serverPointer,'WorldCastle');
+    if(!u8(param+36)||i32(param+32)!==4||u8(p+64)||i32(p+100)!==0||u8(p+104))
+      throw new Error('Only ordinary other-player castles are supported.');
+    return {object:p,target:i32(server+8),occupied:false};
+  };
+  const selected=(allowPending=false)=>{
+    const r=resource(allowPending),c=castle(allowPending);
+    if(r&&c)throw new Error('Multiple target windows are open.');
+    return r?{...r,kind:'resource'}:c?{...c,kind:'castle'}:null;
+  };
   const blockingWindows=()=>windows().filter(p=>u8(p+36)).map(className).filter(name=>![
-    'MainUiView','MiniMapWindow','ExitGuideWindow','ResourcesInfoWindow','SendtrooppanelWindow','WorldMarchInfo'
+    'MainUiView','MiniMapWindow','ExitGuideWindow','ResourcesInfoWindow','CastleInfoWindow','SendtrooppanelWindow','WorldMarchInfo'
   ].includes(name));
   const snapshot=()=>{
-    const p=panel(),r=resource();
-    return {build:profile.build,source:p?'dispatch':r?'resource':'none',target:p?.target||r?.target||null,
-      occupied:!!r?.occupied,panel:p?{preset:p.preset,soldiers:p.soldiers}:null,
+    const p=panel(),r=p?null:selected();
+    return {build:profile.build,source:p?'dispatch':r?r.kind:'none',target:p?.target||r?.target||null,
+      kind:p?.kind||r?.kind||null,occupied:!!r?.occupied,panel:p?{preset:p.preset,soldiers:p.soldiers}:null,
       presets:presets(),queues:queues(),boostInventory:inventory(10303),blockingWindows:blockingWindows()};
   };
+  if(command==='selection') {
+    const dispatch=!!visible('SendtrooppanelWindow');
+    const r=dispatch?null:selected(true);
+    return {source:dispatch?'dispatch':r?.pending?'pending':r?r.kind:'none',
+      target:r?.target||null,occupied:!!r?.occupied,blockingWindows:blockingWindows(),focused:document.hasFocus(),
+      gestureId:window.__gtSelectionWatch?.gesture?.id||null};
+  }
+  if(command==='watchSelection') {
+    window.__gtSelectionWatch?.dispose();
+    let down=null,sequence=0;
+    const watch={gesture:null,dispose:null};
+    const valid=e=>e.isTrusted && e.button===0 && !e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey &&
+      document.hasFocus() && e.target?.id==='unity-canvas';
+    const pointerdown=e=>{
+      if(!e.isTrusted)return;
+      watch.gesture=null;down=null;
+      if(!valid(e))return;
+      // selection executes synchronously before its promise resolves, before Unity
+      // processes the pointer event. Re-read roots each time; do not retain pointers.
+      down={id:++sequence,pointerId:e.pointerId,x:e.clientX,y:e.clientY,moved:false,
+        before:nativeInPage(profile,'selection',{},false).catch(()=>null)};
+    };
+    const pointermove=e=>{if(e.isTrusted && down && e.pointerId===down.pointerId &&
+      Math.hypot(e.clientX-down.x,e.clientY-down.y)>8)down.moved=true;};
+    const pointerup=e=>{
+      if(!e.isTrusted)return;
+      const d=down;down=null;
+      if(!d||!valid(e)||d.pointerId!==e.pointerId||d.moved||Math.hypot(e.clientX-d.x,e.clientY-d.y)>8)return;
+      watch.gesture={id:d.id,before:d.before,at:performance.now(),claimed:false};
+    };
+    const reset=()=>{down=null;watch.gesture=null;};
+    // Captured element blur also reaches window. Only leaving the window cancels the gesture.
+    const blur=e=>{if(e.target===window)reset();};
+    watch.dispose=()=>{
+      for(const [name,fn] of [['pointerdown',pointerdown],['pointermove',pointermove],['pointerup',pointerup],['pointercancel',reset],['blur',blur]])
+        window.removeEventListener(name,fn,true);
+      reset();
+    };
+    for(const [name,fn] of [['pointerdown',pointerdown],['pointermove',pointermove],['pointerup',pointerup],['pointercancel',reset],['blur',blur]])
+      window.addEventListener(name,fn,true);
+    window.__gtSelectionWatch=watch;
+    return {ready:true};
+  }
+  if(command==='selectionGesture') {
+    const g=window.__gtSelectionWatch?.gesture;
+    if(!g||g.claimed||performance.now()-g.at>2000)return {gesture:null};
+    g.claimed=true;
+    return {gesture:{id:g.id,before:await g.before}};
+  }
+  if(command==='verify') {method(singleton('QueuePlugin'),'boost');return {build:profile.build,verified:true};}
   if(command==='progress') {
     return {queues:queues(),boostInventory:inventory(10303),blockingWindows:blockingWindows()};
   }
   if(command==='inspect'){
     // Validate singleton entry now; window methods are checked when those windows exist.
     method(singleton('QueuePlugin'),'boost');
-    const p=panel(),r=resource();if(p){method(p.object,'preset');method(p.object,'dispatch');}if(r)method(r.object,'collect');
+    const p=panel(),r=p?null:selected();if(p){method(p.object,'preset');method(p.object,'dispatch');}if(r)method(r.object,r.kind==='castle'?'attack':'collect');
     return snapshot();
   }
   const blockers=blockingWindows();
   if(blockers.length)throw new Error(`Resolve the blocking game dialogs first (${blockers.join(', ')}).`);
   if(command==='open'){
-    const r=resource();if(!r||r.target!==args.target)throw new Error('Select a resource building and read the state again.');
+    const r=selected();if(!r||r.target!==args.target||(args.kind&&r.kind!==args.kind))throw new Error('Select a resource building and read the state again.');
     if(r.occupied)throw new Error('This resource point already has a march. Select an available resource point.');
-    invoke(r.object,'collect',[0]);return {sent:true};
+    invoke(r.object,r.kind==='castle'?'attack':'collect',r.kind==='castle'?[]:[0]);return {sent:true};
   }
   if(command==='preset'){
-    const p=panel();if(!p||p.target!==args.target)throw new Error('The dispatch target changed or the panel is not open.');
+    const p=panel();if(!p||(args.kind&&p.kind!==args.kind)||p.target!==args.target)throw new Error('The dispatch target changed or the panel is not open.');
     if(!Number.isInteger(args.preset)||!presets().some(x=>x.pos===args.preset))throw new Error('The selected army preset does not exist.');
     // Same ClearCommanderBtn -> setPerInfoShow path as onChangePerChooseCer.
     method(p.object,'clear');method(p.object,'preset');
@@ -145,7 +221,7 @@ export async function nativeInPage(profile, command, args = {}, verifyHash = tru
     return snapshot();
   }
   if(command==='dispatch'){
-    const p=panel();if(!p||p.target!==args.target||p.preset!==args.preset||BigInt(p.soldiers)<=0n)throw new Error('Target, preset, or troop validation failed.');
+    const p=panel();if(!p||(args.kind&&p.kind!==args.kind)||p.target!==args.target||p.preset!==args.preset||BigInt(p.soldiers)<=0n)throw new Error('Target, preset, or troop validation failed.');
     invoke(p.object,'dispatch',[0]);return {sent:true};
   }
   if(command==='boost'){

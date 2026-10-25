@@ -9,12 +9,16 @@ export function gamePage(url) {
 
 export async function runOneClick(client, snapshot, deps) {
   const {check, sleep, note, now = () => performance.now()} = deps;
-  if (!snapshot.target || !['resource', 'dispatch'].includes(snapshot.source)) {
+  if (!snapshot.target || !['resource', 'castle', 'dispatch'].includes(snapshot.source)) {
     throw new Error('Select a resource point first and leave its gathering menu or dispatch panel open.');
   }
   if (!snapshot.presets.some(p => p.pos === 1)) throw new Error('Army preset slot 1 is not configured or loaded.');
   note('Army preset slot 1; speed up until remaining time is ≤ 1 second, with no two-item limit.');
-  const result = await runNative(client, {preset: 1, target: snapshot.target, remainingSeconds: 1}, deps);
+  const result = await runNative(client, {preset: 1, target: snapshot.target, kind: snapshot.kind||(snapshot.source==='castle'?'castle':'resource'), remainingSeconds: 1}, deps);
+  if(result.kind==='castle'){
+    note('Attack dispatch and speedup stage completed. Check the game for arrival and battle outcome.');
+    return {...result,arrived:false};
+  }
   note('Waiting for this march to arrive; no further speedup items will be used.');
   const deadline = now() + 120000;
   while (now() < deadline) {

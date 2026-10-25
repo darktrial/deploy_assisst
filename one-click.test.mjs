@@ -101,7 +101,7 @@ test('toolbar uses scripting without debugger, ignores duplicate clicks and expo
     chrome.scripting.executeScript=async injection=>{repairs.push(injection);return [];};
     assert.deepEqual(await repairHotkeys(),{repaired:1,failed:0});
     assert.equal(repairs[0].world,'ISOLATED');
-    assert.deepEqual(repairs[0].files,['hotkey.js']);
+    assert.deepEqual(repairs[0].files,['hotkey.js','auto-trigger.js']);
     assert.equal('func' in repairs[0],false);
   } finally { globalThis.fetch = originalFetch; delete globalThis.chrome; }
 });
@@ -129,3 +129,11 @@ test('toolbar uses scripting without debugger, ignores duplicate clicks and expo
   await assert.rejects(cancelled.run(),/stopped/);
   assert.equal(cancelled.calls.filter(c=>c.command==='boost').length,1);
  });
+
+test('castle attack shares preset, dispatch and <=1s speedups without claiming battle success',async()=>{
+ const h=harness({inventory:10,arrive:false});h.s.source='castle';h.s.kind='castle';
+ const result=await h.run();
+ assert.equal(result.arrived,false);assert.equal(result.kind,'castle');assert.equal(result.boostsUsed,3);
+ assert.equal(h.s.queues[0].speedupSeconds,59);
+ assert.deepEqual(h.calls.filter(c=>['open','preset','dispatch'].includes(c.command)).map(c=>[c.command,c.args.kind]),[['open','castle'],['preset','castle'],['dispatch','castle']]);
+});

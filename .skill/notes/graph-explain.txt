@@ -1,15 +1,14 @@
-Node: NativeClient
-  ID:        native_client_nativeclient
-  Source:    native-client.mjs L4
+Node: nativeInPage()
+  ID:        native_page_nativeinpage
+  Source:    native-page.mjs L3
   Type:      code
-  Community: Community 1
-  Degree:    7
+  Community: Community 2
+  Degree:    6
 
-Connections (7):
-  <-- background.js [imports] [EXTRACTED] background.js:L1
-  <-- native.test.mjs [imports] [EXTRACTED] native.test.mjs:L6
-  <-- start() [calls] [EXTRACTED] background.js:L51
-  <-- native-client.mjs [contains] [EXTRACTED] native-client.mjs:L4
-  --> .call() [method] [EXTRACTED] native-client.mjs:L23
-  --> .connect() [method] [EXTRACTED] native-client.mjs:L10
-  --> .constructor() [method] [EXTRACTED] native-client.mjs:L5
+Connections (6):
+  <-- native.test.mjs [imports] [EXTRACTED] native.test.mjs:L4
+  --> nativeInPage() [calls] [EXTRACTED] native-page.mjs:L166
+  <-- nativeInPage() [calls] [EXTRACTED] native-page.mjs:L166
+  <-- native-client.mjs [imports] [EXTRACTED] native-client.mjs:L1
+  <-- .call() [indirect_call] [INFERRED] native-client.mjs:L30
+  <-- native-page.mjs [contains] [EXTRACTED] native-page.mjs:L3

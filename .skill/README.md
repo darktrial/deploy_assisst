@@ -12,7 +12,7 @@
 | 6 Supporting Files | architecture/build/testing/safety/graphify、review rubric、change-report 模板；不造無 consumer 的 schema |
 | 7 Graphify | 本機 0.9.95 AST 建圖與查詢，無 LLM 語義分析 |
 | 8 Build & Environment | 原生 MV3 + Node 驗證 + Python ZIP；C/C++/Conan/韌體規範不適用 |
-| 9 Test Integration | 主版 24 + 舊版 28 項；fixtures、oracle、實機缺口分開記錄 |
+| 9 Test Integration | 主版 36 + 舊版 28 項；fixtures、oracle、實機缺口分開記錄 |
 | 10 Safety | 依實際 JS/Python 資料流與生命週期判定；Coverity Not Run |
 
 ```text

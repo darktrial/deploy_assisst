@@ -23,26 +23,27 @@ export async function runNative(client, options, {check,sleep,note,now=()=>perfo
     throw new Error(`${description} timed out. Check the game dialogs; the command was not resent.`);
   };
   let s=await inspect();
-  if(s.target!==target||s.source==='none'||s.occupied)throw new Error('The target changed, is not selected, or is occupied. Read the state again.');
+  if((options.kind&&options.kind!==(s.kind||(s.source==='castle'?'castle':'resource')))||s.target!==target||s.source==='none'||s.occupied)throw new Error('The target changed, is not selected, or is occupied. Read the state again.');
   if(!s.presets.some(p=>p.pos===preset))throw new Error('The selected preset is not loaded.');
   if(boosts>s.boostInventory)throw new Error('Insufficient speedup items.');
+  const kind=s.kind|| (s.source==='castle'?'castle':'resource');
   const existing=new Set(s.queues.map(q=>q.uid));
   note('State checks passed. Starting native workflow; Alt+Shift+X to stop.');
-  s=await inspect();if(s.target!==target)throw new Error('The target changed before execution.');
-  if(s.source==='resource') {
-    note('Opening the dispatch panel through the native gathering entry.');
-    check();await client.call('open',{target});
+  s=await inspect();if(s.target!==target||(s.kind&&s.kind!==kind))throw new Error('The target changed before execution.');
+  if(['resource','castle'].includes(s.source)) {
+    note(`Opening the dispatch panel through the native ${kind==='castle'?'attack':'gathering'} entry.`);
+    check();await client.call('open',{target,kind});
     await waitFor(s=>s.source==='dispatch'&&s.target===target,'Opening dispatch panel');
   }
   note(`Applying army preset ${preset}.`);
-  check();await client.call('preset',{target,preset});
+  check();await client.call('preset',{target,preset,kind});
   await waitFor(s=>s.panel?.preset===preset&&s.target===target&&BigInt(s.panel.soldiers)>0n,'Applying preset');
   // Refresh the queue baseline immediately before dispatch, after preset work.
   s=await inspect();for(const q of s.queues)existing.add(q.uid);
   note('Calling the native dispatch handler.');
-  check();await client.call('dispatch',{target,preset});
+  check();await client.call('dispatch',{target,preset,kind});
   const queue=await waitFor(s=>{
-    const found=s.queues.filter(q=>!existing.has(q.uid)&&q.target===String(target)&&[1,7].includes(q.subType));
+    const found=s.queues.filter(q=>!existing.has(q.uid)&&q.target===String(target)&&(kind==='castle'?[1,2]:[1,7]).includes(q.subType));
     if(found.length>1)throw new Error('Multiple new marches appeared. Automatic speedups stopped.');return found[0];
   },'Waiting for new march','progress');
   note(`Dispatch confirmed: march ${queue.marchId}, queue ${queue.uid}.`);
@@ -51,7 +52,7 @@ export async function runNative(client, options, {check,sleep,note,now=()=>perfo
   for(let i=0;remainingSeconds!==undefined || i<boosts;i++) {
     s=await inspect('progress');
     const q=s.queues.find(q=>q.uid===queue.uid&&q.marchId===queue.marchId&&q.target===String(target));
-    if(!q||q.subType!==1){note('The march ended or gathering started. Speedups stopped.');break;}
+    if(!q||q.subType!==1){note('The march left its outbound state. Speedups stopped.');break;}
     if(remainingSeconds!==undefined) {
       // Anchor the server-provided full duration to first observation. This
       // conservatively overestimates remaining time without trusting PC clock/timezone.
@@ -74,5 +75,5 @@ export async function runNative(client, options, {check,sleep,note,now=()=>perfo
     boostsUsed++;
     note('Speedup inventory and march state updates confirmed.');
   }
-  note('Native workflow completed.');return {marchId:queue.marchId,queueId:queue.uid,target,preset,boostsUsed};
+  note('Native workflow completed.');return {marchId:queue.marchId,queueId:queue.uid,target,preset,boostsUsed,kind};
 }

@@ -1,5 +1,30 @@
 # 版本與研究紀錄
 
+## 2026-10-26：主版 v1.3.2 資源視窗參數尚未就緒
+
+- 使用者截圖提供明確錯誤 ResourcesInfoParam is not ready。fixture 重現資源視窗已可見但 param=0，以及出征面板可見而舊資源窗 param 已清空兩種情境；無法僅憑截圖分辨實機屬於哪一種。
+- selection 對零 param／server 指標回報 pending，最多等待五秒；保留新目標、兩次穩定、焦點、阻擋視窗、gesture 與指紋驗證。錯誤 class 不視為 pending，錯誤文字現在區分 not ready 與 class mismatch。
+- 出征面板優先於資源窗，snapshot／inspect 不再讀取舊窗殘留參數；watch 初始化不依賴資源面板資料。實際變更遊戲的入口維持嚴格檢查，沒有加重送或座標備援。
+- 新增三項回歸：參數延後就緒／類型錯誤、出征面板與清空的舊窗重疊、延遲超過原先 1.5 秒與持續 pending 超時。64/64 測試與 25 檔語法通過，Graphify 重建並更新 query/path/explain。未實機出征或使用道具。
+
+
+## 2026-10-26：主版 v1.3.1 自動選取故障調查
+
+- 唯讀診斷使用者 Chrome：v1.3.0、activationMode=selection，content 與 MAIN watcher 都存在。真實 canvas 點擊送出 trusted pointerdown/up/click；資源視窗由 none 轉 resource、目標有效且未佔用。重新準備後，具明確拒絕 baseline 的非出征探測約 0.55–0.58 秒領取 gesture。未重現單一原始失敗原因，不宣稱已證實是 Unity 不送 click 或版本未載入。
+- 確認程式缺陷並補回歸：初始化超過約一分鐘後不再重試；prepare/run 錯誤及選取拒絕被隱藏；capture blur 將遊戲內 element blur 誤判為視窗失焦。改成持續退避、可見結果、僅 window blur 清除。先判斷新資源，再完整校驗 SHA，避免驗證時間耗盡 gesture 時限；所有 mutation 仍須通過完整校驗。
+- 調查期間曾暫時切手動、安裝唯讀觀察器及拒絕出征的探測。只關閉資源視窗、重新選點及打開／關閉出征面板，未按出征或使用道具。已移除診斷與 veto、恢復原本 selection 設定。Chrome 仍載入 v1.3.0，需重新載入擴充功能與刷新遊戲才能使用本修正。
+- 新增慢載入 >1 分鐘、40 次準備重試、可見失敗測試；擴充 element blur 不取消與完整驗證必須先於 mutation 的斷言。61/61 測試與 25 檔語法通過，完整結果見 verification.json；尚未完成 v1.3.1 已安裝端到端出征測試。Graphify 更新為 284 nodes、raw 576／cluster 529 edges、15 communities，重跑 query/path/explain 並清理 cache。
+
+
+## 2026-10-26：主版 v1.3.0 啟動模式
+
+- 新增 Options 的 Activation mode：manual 預設／selection 點選即執行，保存於 storage.local，頁面與 Chrome 重啟後沿用。啟用或修復只裝唯讀監聽器，不對既有目標出征；停止會切回 manual。
+- Unity MAIN observer 於真實 pointerdown 記錄選取前狀態，pointerup 建立一次性 gesture；排除拖曳、修改鍵、非 canvas／synthetic 點擊。背景核對 documentId、有效新資源、兩次穩定狀態、焦點與模式，之後共用原有 preset 1／出征／加速 ≤1 秒流程。
+- 每次 mutation 前核對 gesture 與模式；新互動會中斷後續自動動作，busy 不排隊。僅支援一般採集，不支援建築或玩家攻擊，不增加 debugger 權限。初始化最多重試約一分鐘，較長載入需使用 Repair F8 或刷新。
+- 59/59 測試及 25 檔語法通過：新增 selection 判定、content VM、背景端保存／來源／共享鎖、MAIN watcher 前後讀取／拖曳／單次領取測試。無已安裝 extension E2E，未真實出征或消耗道具。
+- Graphify：39 code files、282 nodes、raw 568／cluster 521 edges、14 communities。重新保存 seed query、start→selectedResource 與 start→runNative path，以及 selectedResource explain；動態訊息／事件仍以原碼與 fixture 補證。
+
+
 ## 2026-10-25：主版 v1.2.1／舊版 v0.3.1 英文介面
 
 - 兩版擴充功能名稱、manifest 描述、按鈕、HTML 標籤、執行紀錄、快捷鍵提示、原生錯誤及預設校準步驟改為英文；HTML lang=en。既有使用者自訂流程名稱及遊戲回傳名稱不強制翻譯。
@@ -66,3 +91,9 @@ hotkey.js 與 inspect_unity_bundles.py 無抽出符號，匿名／頂層流程�
 模板要求的 10 節、Gate、資源 token 索引、按需 reference、錯誤規則、測試矩陣、rubric 與報告格式已落地。沒有 gating.json consumer，不建立假 schema。firmware .github 規範不在本 repo；C/C++／Conan／GoogleTest 指令不套用，Coverity 不宣稱通過。此次沒有正式 code review，故不創造 code-review-history.md 或有效基準。
 
 過往已驗證知識：preset pos 與 formationId 不同；preArmyDictAsType[0] 才含完整列隊；class methodCount 位移 168。主版已移除固定 3 秒倒數，舊版仍保留。F8 的 DOM 輸入保護不能辨識 Unity 自繪聊天；Chrome 搬移後需從新目錄載入，不能只按舊項目的重新整理。
+
+## 2026-10-26 v1.4.0 ordinary player castle attacks
+
+User reported v1.3.2 gathering works. Read-only live inspection and opening/closing the native attack setup identified CastleInfoWindow.Attack, slot 59850, args 0, wasm arity 2. No attack dispatch or speedup was sent. Matching offline dump: CastleInfoWindow m_param +56, isMySelf +64, warType +100, night +104; CastleInfoParam castleData +24, gridType +32 (OTHER_CASTLE=4), isCastle +36; WorldCastle Grid +8. Selected castle was ordinary, not self, no special war/night mode. Native setup yielded dType=2 (CASTLE), targetType=4, warType=0, isRts=0, EditArmy=0. QueueSubType live class and static fields at +40/+44 confirmed attack outbound=1/return=2 (type metadata 9150748); return never proves victory.
+
+Added typed selection/open/preset/dispatch checks and shared preset1/speedup workflow. Castle selection waits for missing native parameters; unsupported targets fail closed. Original native Attack retains game eligibility checks and warnings, which automation does not dismiss. Four added regression tests cover attack method/slot, unsupported castle contexts, stable selection, and shared speedups without claiming battle success. 68 tests pass, 25 syntax files. Live end-to-end attack dispatch remains Not Run. Extension reload plus game refresh required. Legacy unchanged.

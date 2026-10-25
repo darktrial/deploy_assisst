@@ -7,7 +7,7 @@ export class NativeClient {
     this.executeScript = executeScript;
     this.selected = null;
   }
-  async connect(profile) {
+  async locate(profile) {
     const results = await this.executeScript({
       target: {tabId: this.tabId, allFrames: true}, world: 'MAIN',
       func: () => !!window.gameInstance?.Module?.HEAPU8 && !!document.querySelector('#unity-canvas')
@@ -18,6 +18,9 @@ export class NativeClient {
     }
     this.selected = {frameId: found[0].frameId, documentId: found[0].documentId};
     this.profile = profile;
+  }
+  async connect(profile) {
+    await this.locate(profile);
     return this.call('inspect', {}, true);
   }
   async call(command, args = {}, verifyHash = false) {
