@@ -1,6 +1,7 @@
 // Serialized into the game's default execution context. No memory writes,
 // credential access, packet construction, or arbitrary caller-supplied pointers.
-export async function nativeInPage(profile, command, args = {}, verifyHash = true) {
+export async function nativeInPage(profile, command, args = {}, verifyHash = true, transportEnvelope = false) {
+  try {
   const m=window.gameInstance?.Module;
   if (!m?.HEAPU8 || !m.HEAPU32 || !m.asm?.__indirect_function_table) throw new Error('Unity 尚未就緒。');
   if (!m.wasmBinary || m.wasmBinary.byteLength!==profile.wasmBytes) throw new Error('遊戲版本不相容，停止原生操作。');
@@ -116,6 +117,9 @@ export async function nativeInPage(profile, command, args = {}, verifyHash = tru
       occupied:!!r?.occupied,panel:p?{preset:p.preset,soldiers:p.soldiers}:null,
       presets:presets(),queues:queues(),boostInventory:inventory(10303),blockingWindows:blockingWindows()};
   };
+  if(command==='progress') {
+    return {queues:queues(),boostInventory:inventory(10303),blockingWindows:blockingWindows()};
+  }
   if(command==='inspect'){
     // Validate singleton entry now; window methods are checked when those windows exist.
     method(singleton('QueuePlugin'),'boost');
@@ -152,4 +156,9 @@ export async function nativeInPage(profile, command, args = {}, verifyHash = tru
     invoke(singleton('QueuePlugin'),'boost',[Number(q.uid),args.itemId,1]);return {sent:true};
   }
   throw new Error('不支援的原生操作。');
+  } catch (error) {
+    // executeScript may omit uncaught exception details; return an explicit failure.
+    if (transportEnvelope) return {__gtError: String(error.message || error)};
+    throw error;
+  }
 }

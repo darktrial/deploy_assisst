@@ -1,17 +1,15 @@
 Node: NativeClient
   ID:        native_client_nativeclient
-  Source:    native-client.mjs L3
+  Source:    native-client.mjs L4
   Type:      code
   Community: Community 1
-  Degree:    9
+  Degree:    7
 
-Connections (9):
-  <-- native.test.mjs [imports] [EXTRACTED] native.test.mjs:L6
+Connections (7):
   <-- background.js [imports] [EXTRACTED] background.js:L1
-  <-- start() [calls] [EXTRACTED] background.js:L54
-  <-- native-client.mjs [contains] [EXTRACTED] native-client.mjs:L3
-  --> .connect() [method] [EXTRACTED] native-client.mjs:L20
-  --> .enable() [method] [EXTRACTED] native-client.mjs:L5
-  --> .call() [method] [EXTRACTED] native-client.mjs:L35
-  --> .onEvent() [method] [EXTRACTED] native-client.mjs:L9
-  --> .constructor() [method] [EXTRACTED] native-client.mjs:L4
+  <-- native.test.mjs [imports] [EXTRACTED] native.test.mjs:L6
+  <-- start() [calls] [EXTRACTED] background.js:L51
+  <-- native-client.mjs [contains] [EXTRACTED] native-client.mjs:L4
+  --> .call() [method] [EXTRACTED] native-client.mjs:L23
+  --> .connect() [method] [EXTRACTED] native-client.mjs:L10
+  --> .constructor() [method] [EXTRACTED] native-client.mjs:L5

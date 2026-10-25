@@ -1,44 +1,38 @@
 import {nativeInPage} from './native-page.mjs';
 
+// MAIN-world injection uses the browser API, without debugger or a page message bridge.
 export class NativeClient {
-  constructor(tabId, command) { this.tabId=tabId;this.command=command;this.contexts=[];this.pending=new Set();this.selected=null; }
-  async enable(source) {
-    await this.command(source,'Runtime.enable',{});
-    await this.command(source,'Target.setAutoAttach',{autoAttach:true,waitForDebuggerOnStart:false,flatten:true,filter:[{type:'iframe'},{exclude:true}]});
-  }
-  onEvent(source,method,params) {
-    if(source.tabId!==this.tabId)return;
-    if(method==='Runtime.executionContextCreated'&&params.context?.auxData?.isDefault) {
-      this.contexts.push({source:{...source},id:params.context.id});
-    }
-    if(method==='Target.attachedToTarget') {
-      const source={tabId:this.tabId,sessionId:params.sessionId};
-      const task=this.enable(source).catch(()=>{}).finally(()=>this.pending.delete(task));this.pending.add(task);
-    }
-    if(method==='Runtime.executionContextDestroyed')this.contexts=this.contexts.filter(c=>!(c.id===params.executionContextId&&c.source.sessionId===source.sessionId));
+  constructor(tabId, executeScript) {
+    this.tabId = tabId;
+    this.executeScript = executeScript;
+    this.selected = null;
   }
   async connect(profile) {
-    await this.enable({tabId:this.tabId});
-    for(let i=0;i<4&&this.pending.size;i++)await Promise.allSettled([...this.pending]);
-    const found=[];
-    for(const context of this.contexts) {
-      try {
-        const result=await this.command(context.source,'Runtime.evaluate',{contextId:context.id,
-          expression:'typeof window!=="undefined" && !!window.gameInstance?.Module?.HEAPU8 && !!document.querySelector("#unity-canvas")',returnByValue:true});
-        if(result.result?.value===true)found.push(context);
-      }catch { /* Contexts can disappear while a frame loads. */ }
+    const results = await this.executeScript({
+      target: {tabId: this.tabId, allFrames: true}, world: 'MAIN',
+      func: () => !!window.gameInstance?.Module?.HEAPU8 && !!document.querySelector('#unity-canvas')
+    });
+    const found = results.filter(row => row.result === true);
+    if (found.length !== 1 || !found[0].documentId) {
+      throw new Error('找不到唯一的 Unity 遊戲環境；請確認網站存取權限並等待遊戲載入。');
     }
-    if(found.length!==1)throw new Error('找不到唯一的 Unity 遊戲環境；請等待遊戲完成載入。');
-    this.selected=found[0];this.profile=profile;
-    return this.call('inspect',{},true);
+    this.selected = {frameId: found[0].frameId, documentId: found[0].documentId};
+    this.profile = profile;
+    return this.call('inspect', {}, true);
   }
-  async call(command,args={},verifyHash=false) {
-    if(!this.selected)throw new Error('尚未連接 Unity。');
-    const result=await this.command(this.selected.source,'Runtime.evaluate',{
-      contextId:this.selected.id,expression:`(${nativeInPage.toString()})(${JSON.stringify(this.profile)},${JSON.stringify(command)},${JSON.stringify(args)},${verifyHash})`,
-      returnByValue:true,awaitPromise:true,timeout:10000});
-    if(result.exceptionDetails)throw new Error(result.exceptionDetails.exception?.description?.split('\n')[0]||'遊戲原生呼叫失敗。');
-    if(result.result?.value===undefined)throw new Error('Unity 未回傳有效結果。');
-    return result.result.value;
+  async call(command, args = {}, verifyHash = false) {
+    if (!this.selected) throw new Error('尚未連接 Unity。');
+    const results = await this.executeScript({
+      target: {tabId: this.tabId, documentIds: [this.selected.documentId]},
+      world: 'MAIN', func: nativeInPage, args: [this.profile, command, args, verifyHash, true]
+    });
+    // A frame ID can be reused after navigation; pin the actual document instead.
+    if (results.length !== 1 || results[0].documentId !== this.selected.documentId) {
+      throw new Error('遊戲頁面已更換，停止後續操作。');
+    }
+    const value = results[0].result;
+    if (value?.__gtError) throw new Error(value.__gtError);
+    if (!value || typeof value !== 'object') throw new Error('Unity 未回傳有效結果，沒有重送指令。');
+    return value;
   }
 }

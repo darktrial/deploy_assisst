@@ -1,5 +1,24 @@
 # 版本與研究紀錄
 
+## 2026-10-25 v1.2.0：剩餘一秒加速門檻
+
+- 使用者確認 v1.1.0 可使用，要求取消兩道具限制、加速至剩餘 ≤ 1 秒；僅更新正式一鍵版，舊版採集助手未改。
+- 每次一個 10303，等待庫存減少及行軍變化後才再次判斷。時間用原 queue 的 finish/start、累積 speedupSeconds 與首次觀察後的 performance.now 經過時間保守估計；不依賴 PC 日期、不猜 server clock 記憶體位置。初次通訊延遲可能使估計比遊戲 UI 稍長。
+- ≤1 秒、已抵達或庫存歸零停止加速；時間缺失／異常、queue 改變、回應逾時、使用者停止均不重送。仍確認同一 queue 開始採集才報成功。
+- 52/52 測試、21 檔語法通過；包含超過兩次加速、0/1 秒、自然經過時間、無效時間、庫存不足、缺回應、停止與不重送。未執行真實出征／道具消耗，未驗證新門檻的已安裝 E2E。
+- Graphify 本機重建：35 檔、260 nodes、raw 512／cluster 477 edges、13 communities；重新核對 start → runOneClick → runNative 路徑。既有圖譜主要呼叫鏈不變。
+
+
+## 2026-10-25：主版 v1.1.0 快捷鍵診斷與 scripting transport
+
+- 唯讀查看使用者遊戲時，已安裝版本是 1.0.3；Unity iframe 內有一鍵助手 isolated context 與 capture keydown listener，document.hasFocus=true、activeElement=CANVAS、Unity Module 可用。當下並非腳本未注入或 DOM 輸入框焦點，但未操作 F8／出征來重現使用者故障，不能宣稱已確定單一根因。
+- 程式查核確認舊 hotkey 丟棄 sendMessage 的 reject／ok:false，且只有 keydown；因此失效連線、分頁拒絕或攔截都可能呈現「沒反應」。新版加可見提示、keyup 備援、單次按鍵去重與修復按鈕；onInstalled 對既有遊戲分頁補注入，不出征。
+- 主版 NativeClient 改用 chrome.scripting.executeScript MAIN，唯一 Unity documentId 鎖定；移除 debugger 權限及 attach/detach/event 工作。仍每次 connect 驗證完整 WASM 指紋，原生方法／目標／queue／道具上限檢查保留。錯誤以 __gtError envelope 回傳，避免注入例外被省略後無提示。
+- 出征後改用 progress，讀 queues／inventory／blockingWindows，不反覆掃描預設列隊與面板方法。舊版採集助手不變，仍支援 debugger 通訊觀察。
+- `node tools/verify.mjs` exit 0：50/50 測試、21 檔語法通過。新增 keypad down/up／keyup 備援／訊息失敗／重注入、documentId 防錯頁、錯誤不重送與 progress 不讀 preset 測試；background fixture 沒有 debugger API 也可執行。屬離線模擬，未完成已安裝 1.1.0 的真實 scripting/F8 E2E；沒有新的軍隊或道具消耗，沒有實測 FPS／速度改善數字。
+- Graphify 已重建：260 nodes、raw 512／cluster 477 edges、13 communities，query/path/explain 更新且 cache 清理。主版 client 僅 constructor/connect/call；hotkey 的具名函式已可抽取。仍需人工核對 extension messaging 與 WASM 間接呼叫。
+- 更新 README、AGENTS、技能與資源索引；安裝包以白名單重建。Coverity 仍 Not Run（無工具／capture target）。
+
 ## 2026-10-25：專案集中與技能 v1.0.0
 
 - Chrome 主版維持 1.0.3，舊版維持 0.3.0；本次沒有修改遊戲操作流程或發出出征。

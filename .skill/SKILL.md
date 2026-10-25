@@ -13,7 +13,7 @@ metadata:
 
 | 元件 | 類型／輸出 | 用途 |
 | --- | --- | --- |
-| 根目錄 JS/MJS、manifest、status | Chrome MV3／gt-one-click.zip | F8／工具列，一次採集出征與最多兩次加速 |
+| 根目錄 JS/MJS、manifest、status | Chrome MV3／gt-one-click.zip | F8／工具列，一次採集出征與加速至剩餘 ≤ 1 秒 |
 | chrome-extension/ | 獨立 MV3／gt-gather-helper.zip | 原生模式、被動通訊觀察與校準座標模式 |
 | research/ | Python 離線工具與本機證據 | 協定、Unity 資產、WASM 呼叫路徑研究 |
 | tools/、.skill/scripts/ | 建置／驗證工具 | Node 測試、白名單打包、圖譜與資源索引 |
@@ -24,13 +24,13 @@ metadata:
 
 主鏈：`hotkey.js → runtime message → background.start → NativeClient.connect → runOneClick → runNative → NativeClient.call → nativeInPage → 遊戲原生方法`。Chrome action 直接進入 `start`，不經 content script。
 
-- `runOneClick(client, snapshot, deps)` 固定 `preset=1`、`boosts=min(2, inventory)`；回傳含 `arrived:true` 的結果前，要確認同一 target／queue／march 的採集狀態。
-- `runNative(client, {preset,target,boosts}, {check,sleep,note,now})` 開面板、套 preset、出征、關聯唯一新 queue、逐次加速；其完成不等同抵達。
-- `NativeClient.connect(profile)` 找唯一 Unity 預設 context，校驗完整 WASM；`call(command,args,verifyHash=false)` 透過 CDP 求值並檢查例外。
+- `runOneClick(client, snapshot, deps)` 固定 `preset=1`、`remainingSeconds=1`，不設固定道具數上限；回傳含 `arrived:true` 的結果前，要確認同一 target／queue／march 的採集狀態。
+- `runNative(client, {preset,target,remainingSeconds:1}, {check,sleep,note,now})` 開面板、套 preset、出征、關聯唯一新 queue、逐次加速；其完成不等同抵達。
+- 主版 `NativeClient.connect(profile)` 透過 scripting MAIN 找唯一 Unity document，校驗完整 WASM；`call(command,args,verifyHash=false)` 綁定 documentId，檢查錯誤 envelope，不附加 debugger。舊版另保留 CDP client。
 - snapshot：`source/target/occupied/presets/panel/queues/boostInventory/blockingWindows`。`Queue.uid/marchId/target` 與 `panel.soldiers` 為十進位字串，目標參數為整數。更多欄位、方法 slot 和版本更新步驟見 [architecture](references/architecture.md)。
-- 限制：等待原生回應 8 秒／150ms 輪詢；抵達等待 120 秒／500ms；Runtime.evaluate timeout 10 秒；加速道具 10303、每次 count=1。兩版停止鍵與啟動倒數不同。
+- 限制：等待原生回應 8 秒／150ms 輪詢；抵達等待 120 秒／500ms；主版出征後用 progress 精簡讀取；舊版 Runtime.evaluate timeout 10 秒；加速道具 10303、每次 count=1。兩版停止鍵與啟動倒數不同。
 
-已執行 Graphify query、path、explain，證據為 `notes/graph-query.txt`、`notes/graph-path.txt`、`notes/graph-explain.txt`；已用 `background.js`、`one-click.mjs`、`native-runner.mjs`、`native-client.mjs` 核對 `start → runOneClick → runNative` 與 NativeClient 初始化。F8 匿名 callback、跨 context 序列化及 WASM 動態呼叫未被完整建模，見 [graphify](references/graphify.md)。
+已執行 Graphify query、path、explain，證據為 `notes/graph-query.txt`、`notes/graph-path.txt`、`notes/graph-explain.txt`；已用 `background.js`、`one-click.mjs`、`native-runner.mjs`、`native-client.mjs` 核對 `start → runOneClick → runNative` 與 NativeClient 初始化。跨 extension 訊息、context 序列化及 WASM 動態呼叫未被完整建模，見 [graphify](references/graphify.md)。
 
 ## 3. 建置系統
 
@@ -40,7 +40,7 @@ metadata:
 
 ## 4. 單元測試
 
-使用 `node:test` 與 `assert/strict`，主版本 17 項、舊版 28 項（含子測試）。`tools/verify.mjs` 直接測本目錄來源，保存命令、exit code、Node 版本與 SHA-256；沒有測試用複製原始碼或 ABI 差異。
+使用 `node:test` 與 `assert/strict`，主版本 24 項、舊版 28 項（含子測試）。`tools/verify.mjs` 直接測本目錄來源，保存命令、exit code、Node 版本與 SHA-256；沒有測試用複製原始碼或 ABI 差異。
 
 修改時依 [testing](references/testing.md) 選擇 fixture 與負向場景。記憶體 fixture、CDP mock、F8 VM 測試與隔離 UI smoke 都不是已安裝 extension 的 E2E。2026-10-25 的原生實測摘要可證實當時的遊戲原生流程，不能替代當前工具列／F8 實機驗證。
 

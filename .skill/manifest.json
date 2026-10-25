@@ -20,7 +20,7 @@
         "status.html",
         "status.js"
       ],
-      "estimated_tokens": 6852,
+      "estimated_tokens": 8105,
       "load_condition": "on_demand"
     },
     {
@@ -79,7 +79,7 @@
         ".gitignore",
         ".graphifyignore"
       ],
-      "estimated_tokens": 7001,
+      "estimated_tokens": 7472,
       "load_condition": "on_demand"
     },
     {
@@ -89,7 +89,7 @@
         "graphify-out/graph.json",
         "graphify-out/GRAPH_REPORT.md"
       ],
-      "estimated_tokens": 48625,
+      "estimated_tokens": 50161,
       "load_condition": "on_demand"
     }
   ],
@@ -98,24 +98,24 @@
       "name": "hotkey.test.mjs",
       "path": "hotkey.test.mjs",
       "type": "node:test",
-      "test_count": 1,
-      "estimated_tokens": 348,
+      "test_count": 4,
+      "estimated_tokens": 850,
       "load_condition": "on_demand"
     },
     {
       "name": "one-click.test.mjs",
       "path": "one-click.test.mjs",
       "type": "node:test",
-      "test_count": 6,
-      "estimated_tokens": 1304,
+      "test_count": 8,
+      "estimated_tokens": 1953,
       "load_condition": "on_demand"
     },
     {
       "name": "native.test.mjs",
       "path": "native.test.mjs",
       "type": "node:test",
-      "test_count": 10,
-      "estimated_tokens": 2912,
+      "test_count": 12,
+      "estimated_tokens": 3174,
       "load_condition": "on_demand"
     },
     {
@@ -151,12 +151,12 @@
     },
     {
       "path": ".skill/SKILL.md",
-      "estimated_tokens": 2417,
+      "estimated_tokens": 2469,
       "load_condition": "always"
     },
     {
       "path": ".skill/notes/graph-explain.txt",
-      "estimated_tokens": 177,
+      "estimated_tokens": 148,
       "load_condition": "on_demand"
     },
     {
@@ -176,17 +176,17 @@
     },
     {
       "path": ".skill/notes/verification.json",
-      "estimated_tokens": 3675,
+      "estimated_tokens": 4047,
       "load_condition": "on_demand"
     },
     {
       "path": ".skill/notes/version_history.md",
-      "estimated_tokens": 1233,
+      "estimated_tokens": 2212,
       "load_condition": "on_demand"
     },
     {
       "path": ".skill/references/architecture.md",
-      "estimated_tokens": 1289,
+      "estimated_tokens": 1718,
       "load_condition": "on_demand"
     },
     {
@@ -196,7 +196,7 @@
     },
     {
       "path": ".skill/references/graphify.md",
-      "estimated_tokens": 1013,
+      "estimated_tokens": 1032,
       "load_condition": "on_demand"
     },
     {
@@ -206,7 +206,7 @@
     },
     {
       "path": ".skill/references/safety.md",
-      "estimated_tokens": 974,
+      "estimated_tokens": 1050,
       "load_condition": "on_demand"
     },
     {
@@ -221,12 +221,12 @@
     },
     {
       "path": ".skill/references/testing.md",
-      "estimated_tokens": 962,
+      "estimated_tokens": 1067,
       "load_condition": "on_demand"
     },
     {
       "path": ".skill/rules/error_handling.md",
-      "estimated_tokens": 616,
+      "estimated_tokens": 670,
       "load_condition": "on_demand"
     },
     {
@@ -240,6 +240,6 @@
       "load_condition": "on_demand"
     }
   ],
-  "total_estimated_tokens": 124837,
-  "always_load_estimated_tokens": 2417
+  "total_estimated_tokens": 131567,
+  "always_load_estimated_tokens": 2469
 }

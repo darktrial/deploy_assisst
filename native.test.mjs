@@ -27,7 +27,7 @@ function runnerHarness({boosts=0,timeout=false,ambiguous=false,cancel=false,arri
 test('native sequence correlates only the newly created queue and acknowledges each speedup',async()=>{
   const h=runnerHarness({boosts:2}),result=await h.run();
   assert.equal(result.queueId,'42');
-  assert.deepEqual(h.calls.filter(c=>c.command!=='inspect').map(c=>c.command),['open','preset','dispatch','boost','boost']);
+  assert.deepEqual(h.calls.filter(c=>!['inspect','progress'].includes(c.command)).map(c=>c.command),['open','preset','dispatch','boost','boost']);
   assert.ok(h.calls.filter(c=>c.command==='boost').every(c=>c.args.queueId==='42'&&c.args.itemId===10303&&c.args.count===1));
   assert.equal(h.s.boostInventory,3);
   assert.deepEqual(h.sleeps,[],'ready game replies should proceed without a fixed startup sleep');
@@ -132,17 +132,41 @@ test('page bridge applies a preset and uses the original Go handler with target 
   h.put(h.show+192,1);
   await assert.rejects(nativeInPage(h.profile,'dispatch',{target:349641,preset:1},false),/一般資源採集/);
 });
-test('CDP client routes frame calls to the unique default Unity context and handles exceptions',async()=>{
-  const calls=[];let client;
-  client=new NativeClient(1,async(source,method,params)=>{
-    calls.push({source,method,params});
-    if(method==='Runtime.enable')client.onEvent(source,'Runtime.executionContextCreated',{context:{id:source.sessionId?8:1,auxData:{isDefault:true}}});
-    if(method==='Runtime.evaluate'&&params.expression.startsWith('typeof window'))return {result:{value:params.contextId===8}};
-    if(method==='Runtime.evaluate')return {result:{value:{build:profile.build}}};
-    return {};
+test('scripting client pins the unique Unity document in MAIN and verifies the initial hash',async()=>{
+  const calls=[];
+  const client=new NativeClient(1,async injection=>{
+    calls.push(injection);
+    if(injection.target.allFrames)return [{frameId:0,documentId:'top',result:false},{frameId:8,documentId:'unity',result:true}];
+    return [{frameId:8,documentId:'unity',result:{build:profile.build}}];
   });
-  client.onEvent({tabId:1},'Target.attachedToTarget',{sessionId:'iframe'});
   assert.equal((await client.connect(profile)).build,profile.build);
-  assert.equal(client.selected.source.sessionId,'iframe');
-  assert.ok(calls.find(c=>c.method==='Runtime.evaluate'&&c.params.expression.includes('nativeInPage')).params.awaitPromise);
+  await client.call('progress');
+  assert.ok(calls.every(c=>c.world==='MAIN'));
+  assert.deepEqual(calls[1].target,{tabId:1,documentIds:['unity']});
+  assert.equal(calls[1].args[3],true);
+  assert.equal(calls[1].args[4],true);
+  assert.equal(calls[2].args[3],false);
+});
+
+test('scripting client refuses ambiguity, changed documents and page errors without retry',async()=>{
+  const ambiguous=new NativeClient(1,async()=>[{documentId:'a',result:true},{documentId:'b',result:true}]);
+  await assert.rejects(ambiguous.connect(profile),/唯一/);
+  for(const result of [{documentId:'new',result:{}},{documentId:'unity',result:{__gtError:'version failed'}},{documentId:'unity'}]){
+    let calls=0;
+    const client=new NativeClient(1,async()=>{calls++;return [result];});
+    client.selected={documentId:'unity'};client.profile=profile;
+    await assert.rejects(client.call('dispatch',{target:349641,preset:1}));
+    assert.equal(calls,1);
+  }
+});
+
+test('progress omits army enumeration and transport errors are explicit',async()=>{
+  const h=memoryFixture();
+  // Simulate unavailable preset data after dispatch; progress must not touch it.
+  h.put(h.profile.types.WarHallPlugin,0);
+  const s=await nativeInPage(h.profile,'progress',{},false);
+  assert.equal(s.boostInventory,9);assert.equal(s.queues[0].uid,'42');
+  assert.equal('presets' in s,false);assert.equal(h.calls.length,0);
+  const error=await nativeInPage(h.profile,'inspect',{},true,true);
+  assert.match(error.__gtError,/指紋/);
 });

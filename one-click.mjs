@@ -8,20 +8,18 @@ export function gamePage(url) {
 }
 
 export async function runOneClick(client, snapshot, deps) {
-  const {check, sleep, note, now = Date.now} = deps;
+  const {check, sleep, note, now = () => performance.now()} = deps;
   if (!snapshot.target || !['resource', 'dispatch'].includes(snapshot.source)) {
     throw new Error('請先選好資源點，停在採集選單或出征面板。');
   }
   if (!snapshot.presets.some(p => p.pos === 1)) throw new Error('第一組預設列隊尚未設定或未載入。');
-  // Keep the explicit two-item ceiling, including when a point takes longer to reach.
-  const boosts = Math.min(2, Math.max(0, snapshot.boostInventory));
-  note(`第一組預設列隊；本次最多使用 ${boosts} 個加速道具。`);
-  const result = await runNative(client, {preset: 1, target: snapshot.target, boosts}, deps);
+  note('第一組預設列隊；逐次加速至剩餘時間 ≤ 1 秒，沒有兩個道具上限。');
+  const result = await runNative(client, {preset: 1, target: snapshot.target, remainingSeconds: 1}, deps);
   note('等待本次行軍抵達；不再追加加速道具。');
   const deadline = now() + 120000;
   while (now() < deadline) {
     check();
-    const s = await client.call('inspect');
+    const s = await client.call('progress');
     check();
     const q = s.queues.find(q => q.uid === result.queueId && q.marchId === result.marchId && q.target === String(result.target));
     if (!q) throw new Error('本次行軍已不在佇列中，無法確認抵達，請查看遊戲。');

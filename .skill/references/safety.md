@@ -4,7 +4,8 @@
 
 | 使用處 | 必要條件／證據 | 維護與驗證 |
 | --- | --- | --- |
-| Runtime.evaluate | 固定 nativeInPage 函式＋JSON.stringify 純資料；明確 contextId、awaitPromise、timeout；檢查 exceptionDetails | 不接受訊息提供的程式文字；保留 CDP mock 與錯誤路徑 |
+| 舊版 Runtime.evaluate | 固定 nativeInPage 函式＋JSON.stringify 純資料；明確 contextId、awaitPromise、timeout；檢查 exceptionDetails | 不接受訊息提供的程式文字；保留 CDP mock 與錯誤路徑 |
+| 主版 scripting.executeScript | 固定 nativeInPage 函式與純資料 args，MAIN world，唯一 Unity documentId，明確錯誤 envelope | 不建立可被頁面呼叫的任意 bridge；導航後禁止沿用 frameId；新版不使用 debugger |
 | WASM fn table 呼叫 | 完整 SHA／size，類別、方法、args、slot、arity 全數匹配 | profile 改版需離線資料與執行狀態證據；方法 fixture 不等於版本驗證 |
 | DataView／HEAPU8 讀取 | range、list/dictionary count 與容量、字串長度限制；i64 字串保存 | 不把校驗搬到讀取之後；查核所有新增欄位的正確尺寸與 signedness |
 | queueId → Number | 只在 boost 原生入口需要 int32，先檢查十進位與上限 2147483647 | 不對 marchId 做 Number 轉換；測大 ID 與錯誤 target |

@@ -34,7 +34,7 @@ def make_index():
         component('project-docs', 'documentation', ['AGENTS.md', 'README.md', 'chrome-extension/README.md', '.gitignore', '.graphifyignore']),
         component('graph', 'graphify-evidence', ['graphify-out/graph.json', 'graphify-out/GRAPH_REPORT.md']),
     ]
-    counts = {'hotkey.test.mjs': 1, 'one-click.test.mjs': 6, 'native.test.mjs': 10,
+    counts = {'hotkey.test.mjs': 4, 'one-click.test.mjs': 8, 'native.test.mjs': 12,
               'chrome-extension/core.test.mjs': 9, 'chrome-extension/observer.test.mjs': 9,
               'chrome-extension/native.test.mjs': 10}
     tests = [{'name': path, 'path': path, 'type': 'node:test', 'test_count': count,

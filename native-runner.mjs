@@ -1,22 +1,23 @@
 export function validateNativeOptions(options) {
   if(!Number.isInteger(options.preset)||options.preset<1||options.preset>100)throw new Error('請選擇有效的 army preset。');
   if(!Number.isInteger(options.target)||options.target<=0)throw new Error('請先選好建築物並讀取狀態。');
-  if(!Number.isInteger(options.boosts)||options.boosts<0||options.boosts>2)throw new Error('加速次數必須為 0–2。');
-  return {preset:options.preset,target:options.target,boosts:options.boosts};
+  if(options.remainingSeconds!==undefined && (options.remainingSeconds!==1 || options.boosts!==undefined))throw new Error('自動加速門檻必須為 1 秒，且不可混用固定次數。');
+  if(options.remainingSeconds===undefined && (!Number.isInteger(options.boosts)||options.boosts<0||options.boosts>2))throw new Error('加速次數必須為 0–2。');
+  return {preset:options.preset,target:options.target,boosts:options.boosts,remainingSeconds:options.remainingSeconds};
 }
 
 // Every mutation is issued once. Missing acknowledgements never cause a replay.
-export async function runNative(client, options, {check,sleep,note,now=Date.now}) {
-  const {preset,target,boosts}=validateNativeOptions(options);
-  const inspect=async()=>{
-    check();const s=await client.call('inspect');check();
+export async function runNative(client, options, {check,sleep,note,now=()=>performance.now()}) {
+  const {preset,target,boosts,remainingSeconds}=validateNativeOptions(options);
+  const inspect=async(command='inspect')=>{
+    check();const s=await client.call(command);check();
     if(s.blockingWindows?.length)throw new Error(`遊戲有其他提示視窗（${s.blockingWindows.join('、')}），請先處理。`);
     return s;
   };
-  const waitFor=async(predicate,description)=>{
+  const waitFor=async(predicate,description,command='inspect')=>{
     const deadline=now()+8000;
     while(now()<deadline){
-      const s=await inspect();const result=predicate(s);if(result)return result;
+      const s=await inspect(command);const result=predicate(s);if(result)return result;
       await sleep(150);
     }
     throw new Error(`${description}逾時；請檢查遊戲提示，沒有重送指令。`);
@@ -43,21 +44,35 @@ export async function runNative(client, options, {check,sleep,note,now=Date.now}
   const queue=await waitFor(s=>{
     const found=s.queues.filter(q=>!existing.has(q.uid)&&q.target===String(target)&&[1,7].includes(q.subType));
     if(found.length>1)throw new Error('同時出現多支新行軍，停止自動加速。');return found[0];
-  },'等待新行軍');
+  },'等待新行軍','progress');
   note(`出征已確認：行軍 ${queue.marchId}，queue ${queue.uid}。`);
-  for(let i=0;i<boosts;i++) {
-    s=await inspect();
+  const observedAt=now();
+  let boostsUsed=0;
+  for(let i=0;remainingSeconds!==undefined || i<boosts;i++) {
+    s=await inspect('progress');
     const q=s.queues.find(q=>q.uid===queue.uid&&q.marchId===queue.marchId&&q.target===String(target));
     if(!q||q.subType!==1){note('行軍已結束或已開始採集，停止使用加速。');break;}
+    if(remainingSeconds!==undefined) {
+      // Anchor the server-provided full duration to first observation. This
+      // conservatively overestimates remaining time without trusting PC clock/timezone.
+      if(![q.start,q.finish,q.speedupSeconds].every(Number.isSafeInteger) || q.finish<q.start || q.speedupSeconds<0 || q.start!==queue.start || q.finish!==queue.finish)
+        throw new Error('行軍時間資料無效或已改變，停止加速。');
+      const remaining=Math.max(0,q.finish-q.start-q.speedupSeconds-Math.max(0,now()-observedAt)/1000);
+      note(`行軍剩餘時間保守估計 ${remaining.toFixed(2)} 秒。`);
+      if(remaining<=remainingSeconds){note('剩餘時間 ≤ 1 秒，停止加速並等待抵達。');break;}
+    }
     const beforeSpeed=q.speedupSeconds,beforeInventory=s.boostInventory;
+    if(remainingSeconds!==undefined && beforeInventory===0){note('加速道具已用完，停止加速並等待抵達。');break;}
+    if(!Number.isSafeInteger(beforeInventory)||beforeInventory<0)throw new Error('加速道具庫存無效。');
     if(beforeInventory<1)throw new Error('加速道具不足。');
-    note(`使用加速 ${i+1}/${boosts}（道具 10303 × 1）。`);
+    note(`使用加速第 ${i+1} 次（道具 10303 × 1）。`);
     check();await client.call('boost',{target,queueId:q.uid,marchId:q.marchId,itemId:10303,count:1});
     await waitFor(s=>{
       const current=s.queues.find(x=>x.uid===q.uid&&x.marchId===q.marchId);
       return s.boostInventory<beforeInventory&&(!current||current.subType!==1||current.speedupSeconds>beforeSpeed);
-    },'等待加速回應');
+    },'等待加速回應','progress');
+    boostsUsed++;
     note('已確認加速後的道具數量與行軍狀態更新。');
   }
-  note('原生流程完成。');return {marchId:queue.marchId,queueId:queue.uid,target,preset};
+  note('原生流程完成。');return {marchId:queue.marchId,queueId:queue.uid,target,preset,boostsUsed};
 }

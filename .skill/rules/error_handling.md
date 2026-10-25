@@ -7,7 +7,8 @@
 | 出征回應逾時／多新 queue | 不猜隊伍，不加速未知 queue | 0 |
 | 加速回應逾時 | 不發下一個，不重發已送指令 | 0 |
 | 抵達超過兩分鐘／queue 消失 | 明確未確認抵達；軍隊可能繼續行軍 | 不追加道具 |
-| debugger 被占用、detach、導航 | 顯示失敗或取消，finally 清理可用連線 | 不自動換頁或換帳號 |
+| 主版 documentId 消失、導航或 scripting 權限不足 | 停止後續操作並顯示錯誤；重新選目標後再啟動 | 不沿用新 document，不重送 |
+| 舊版 debugger 被占用、detach、導航 | 顯示失敗或取消，finally 清理可用連線 | 不自動換頁或換帳號 |
 | F8 更新後無效 | 新路徑載入 extension，刷新遊戲再測焦點；檢查 trusted/repeat/輸入區 | 不用合成事件繞過 isTrusted |
 | Python 依賴找不到 | 核對 GT_RESEARCH_DEPS 與搬移後 parents 路徑；先跑標準庫驗證 | 同一無改變命令不重複 |
 | Graphify 找不到 | 核對 GRAPHIFY_PYTHON、來源雙層資料夾與安裝版本；用原碼完成局部研究 | 診斷後最多 3 次 |

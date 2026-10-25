@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
   "name": "GT 一鍵出征",
-  "version": "1.0.3",
+  "version": "1.2.0",
   "description": "選好資源點後點圖示，套用第一組預設列隊、出征，最多使用兩個行軍加速道具。",
   "minimum_chrome_version": "125",
-  "permissions": ["storage", "debugger"],
+  "permissions": ["storage", "scripting"],
   "host_permissions": ["https://game.gtarcade.com/*", "https://logins-gotpc.gtarcade.com/*"],
   "content_scripts": [{
     "matches": ["https://game.gtarcade.com/game*", "https://logins-gotpc.gtarcade.com/*"],
