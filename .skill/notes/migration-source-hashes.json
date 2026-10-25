@@ -1,0 +1,72 @@
+[
+  {
+    "destination": "deploy_assisst/background.js",
+    "sha256": "11527942f2b52c60472f5b698a18c928de1985af9377b30f51844b74f437bcd2",
+    "source": "chrome-one-click/background.js"
+  },
+  {
+    "destination": "deploy_assisst/hotkey.js",
+    "sha256": "ab86696cb902f37f2cb17a4e46f0b624ebc89ce69af0d7a4a9d45d6e6779b8e2",
+    "source": "chrome-one-click/hotkey.js"
+  },
+  {
+    "destination": "deploy_assisst/hotkey.test.mjs",
+    "sha256": "ab3198a19524db8e1bcfa623c2efb4f6abfa1640dbd145072452cf75908ce100",
+    "source": "chrome-one-click/hotkey.test.mjs"
+  },
+  {
+    "destination": "deploy_assisst/manifest.json",
+    "sha256": "b2a82e47a76bfe77413edc098151d59a8fc945aa0fb89fc87dcd7fbceaa3b63a",
+    "source": "chrome-one-click/manifest.json"
+  },
+  {
+    "destination": "deploy_assisst/native-client.mjs",
+    "sha256": "44dd83964dbce2bcf6b19edd35e8e7c247e06a6f129276933ab73b682998c2ff",
+    "source": "chrome-one-click/native-client.mjs"
+  },
+  {
+    "destination": "deploy_assisst/native-page.mjs",
+    "sha256": "1b12d966a4e7d97e4b84a56e1d37da2023b779d05667cdc4f9ae94b623aba38a",
+    "source": "chrome-one-click/native-page.mjs"
+  },
+  {
+    "destination": "deploy_assisst/native-profile.json",
+    "sha256": "e0f73cb6bc71cd7f52a50400d9e33185759779f2a7cd822c3cded062b9367d01",
+    "source": "chrome-one-click/native-profile.json"
+  },
+  {
+    "destination": "deploy_assisst/native-runner.mjs",
+    "sha256": "21dea7f45f99e957ac45485c8c7753377f782519133e9dfe177389c577fdd0a9",
+    "source": "chrome-one-click/native-runner.mjs"
+  },
+  {
+    "destination": "deploy_assisst/native.test.mjs",
+    "sha256": "f909228048af0566dc598f659e869b5a5dda626e364ca344427a344a313126a4",
+    "source": "chrome-one-click/native.test.mjs"
+  },
+  {
+    "destination": "deploy_assisst/one-click.mjs",
+    "sha256": "e039f859547817ee2d38dde69c26b34f2153f85ac16a9668692c26ca1af266ac",
+    "source": "chrome-one-click/one-click.mjs"
+  },
+  {
+    "destination": "deploy_assisst/one-click.test.mjs",
+    "sha256": "6d0ac1cd51790367eb089d660024cd839ff4dce53b910daab4b573a8c7878df5",
+    "source": "chrome-one-click/one-click.test.mjs"
+  },
+  {
+    "destination": "deploy_assisst/README.md",
+    "sha256": "8be657c06999961a1e0d77b7c6528582c1012c840eee4da6f320d5c58f341d7c",
+    "source": "chrome-one-click/README.md"
+  },
+  {
+    "destination": "deploy_assisst/status.html",
+    "sha256": "60fe44de948626e2b4909e630fa9d13af949d7ac5e0da6d544023c07e9190025",
+    "source": "chrome-one-click/status.html"
+  },
+  {
+    "destination": "deploy_assisst/status.js",
+    "sha256": "63729d0c9110e1a37c46e862577617ac863d4bc5f181a0d1575d20989d3a67df",
+    "source": "chrome-one-click/status.js"
+  }
+]

@@ -1,0 +1,8 @@
+.git/
+.skill/
+dist/
+graphify-out/
+research/capture/
+research/tools/
+**/__pycache__/
+*.pyc

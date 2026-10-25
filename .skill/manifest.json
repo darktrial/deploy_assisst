@@ -1,0 +1,245 @@
+{
+  "skill_name": "deploy-assisst-developer",
+  "version": "1.0.0",
+  "path_base": "repo-root",
+  "token_estimation": "non-ASCII characters + ceil(ASCII characters / 4); approximate, not tokenizer billing",
+  "consumer": ".skill/scripts/resources.py",
+  "components": [
+    {
+      "name": "one-click",
+      "type": "chrome-mv3",
+      "source_files": [
+        "background.js",
+        "hotkey.js",
+        "manifest.json",
+        "native-client.mjs",
+        "native-page.mjs",
+        "native-profile.json",
+        "native-runner.mjs",
+        "one-click.mjs",
+        "status.html",
+        "status.js"
+      ],
+      "estimated_tokens": 6852,
+      "load_condition": "on_demand"
+    },
+    {
+      "name": "gather-helper",
+      "type": "chrome-mv3",
+      "source_files": [
+        "chrome-extension/background.js",
+        "chrome-extension/controller.html",
+        "chrome-extension/controller.js",
+        "chrome-extension/core.mjs",
+        "chrome-extension/manifest.json",
+        "chrome-extension/native-client.mjs",
+        "chrome-extension/native-page.mjs",
+        "chrome-extension/native-profile.json",
+        "chrome-extension/native-runner.mjs",
+        "chrome-extension/observer.mjs",
+        "chrome-extension/starter-profile.json",
+        "chrome-extension/style.css"
+      ],
+      "estimated_tokens": 16318,
+      "load_condition": "on_demand"
+    },
+    {
+      "name": "research",
+      "type": "python-offline",
+      "source_files": [
+        "research/analyze_traffic.py",
+        "research/decode_buff_config.py",
+        "research/environment.py",
+        "research/extract_unity_webdata.py",
+        "research/inspect_native_build.py",
+        "research/inspect_unity_bundles.py",
+        "research/observer_ui_smoke.py",
+        "research/probe_gtarcade.py"
+      ],
+      "estimated_tokens": 6779,
+      "load_condition": "on_demand"
+    },
+    {
+      "name": "build-tools",
+      "type": "node-python",
+      "source_files": [
+        "tools/package.py",
+        "tools/verify.mjs"
+      ],
+      "estimated_tokens": 893,
+      "load_condition": "on_demand"
+    },
+    {
+      "name": "project-docs",
+      "type": "documentation",
+      "source_files": [
+        "AGENTS.md",
+        "README.md",
+        "chrome-extension/README.md",
+        ".gitignore",
+        ".graphifyignore"
+      ],
+      "estimated_tokens": 7001,
+      "load_condition": "on_demand"
+    },
+    {
+      "name": "graph",
+      "type": "graphify-evidence",
+      "source_files": [
+        "graphify-out/graph.json",
+        "graphify-out/GRAPH_REPORT.md"
+      ],
+      "estimated_tokens": 48625,
+      "load_condition": "on_demand"
+    }
+  ],
+  "test_files": [
+    {
+      "name": "hotkey.test.mjs",
+      "path": "hotkey.test.mjs",
+      "type": "node:test",
+      "test_count": 1,
+      "estimated_tokens": 348,
+      "load_condition": "on_demand"
+    },
+    {
+      "name": "one-click.test.mjs",
+      "path": "one-click.test.mjs",
+      "type": "node:test",
+      "test_count": 6,
+      "estimated_tokens": 1304,
+      "load_condition": "on_demand"
+    },
+    {
+      "name": "native.test.mjs",
+      "path": "native.test.mjs",
+      "type": "node:test",
+      "test_count": 10,
+      "estimated_tokens": 2912,
+      "load_condition": "on_demand"
+    },
+    {
+      "name": "chrome-extension/core.test.mjs",
+      "path": "chrome-extension/core.test.mjs",
+      "type": "node:test",
+      "test_count": 9,
+      "estimated_tokens": 1615,
+      "load_condition": "on_demand"
+    },
+    {
+      "name": "chrome-extension/observer.test.mjs",
+      "path": "chrome-extension/observer.test.mjs",
+      "type": "node:test",
+      "test_count": 9,
+      "estimated_tokens": 1797,
+      "load_condition": "on_demand"
+    },
+    {
+      "name": "chrome-extension/native.test.mjs",
+      "path": "chrome-extension/native.test.mjs",
+      "type": "node:test",
+      "test_count": 10,
+      "estimated_tokens": 2872,
+      "load_condition": "on_demand"
+    }
+  ],
+  "skill_files": [
+    {
+      "path": ".skill/README.md",
+      "estimated_tokens": 636,
+      "load_condition": "on_demand"
+    },
+    {
+      "path": ".skill/SKILL.md",
+      "estimated_tokens": 2417,
+      "load_condition": "always"
+    },
+    {
+      "path": ".skill/notes/graph-explain.txt",
+      "estimated_tokens": 177,
+      "load_condition": "on_demand"
+    },
+    {
+      "path": ".skill/notes/graph-path.txt",
+      "estimated_tokens": 27,
+      "load_condition": "on_demand"
+    },
+    {
+      "path": ".skill/notes/graph-query.txt",
+      "estimated_tokens": 576,
+      "load_condition": "on_demand"
+    },
+    {
+      "path": ".skill/notes/migration-source-hashes.json",
+      "estimated_tokens": 668,
+      "load_condition": "on_demand"
+    },
+    {
+      "path": ".skill/notes/verification.json",
+      "estimated_tokens": 3675,
+      "load_condition": "on_demand"
+    },
+    {
+      "path": ".skill/notes/version_history.md",
+      "estimated_tokens": 1233,
+      "load_condition": "on_demand"
+    },
+    {
+      "path": ".skill/references/architecture.md",
+      "estimated_tokens": 1289,
+      "load_condition": "on_demand"
+    },
+    {
+      "path": ".skill/references/build-environment.md",
+      "estimated_tokens": 870,
+      "load_condition": "on_demand"
+    },
+    {
+      "path": ".skill/references/graphify.md",
+      "estimated_tokens": 1013,
+      "load_condition": "on_demand"
+    },
+    {
+      "path": ".skill/references/rubrics/code_review_rubric.md",
+      "estimated_tokens": 460,
+      "load_condition": "on_demand"
+    },
+    {
+      "path": ".skill/references/safety.md",
+      "estimated_tokens": 974,
+      "load_condition": "on_demand"
+    },
+    {
+      "path": ".skill/references/templates/change-report.md",
+      "estimated_tokens": 276,
+      "load_condition": "on_demand"
+    },
+    {
+      "path": ".skill/references/templates/module-skill-template.md",
+      "estimated_tokens": 10204,
+      "load_condition": "on_demand"
+    },
+    {
+      "path": ".skill/references/testing.md",
+      "estimated_tokens": 962,
+      "load_condition": "on_demand"
+    },
+    {
+      "path": ".skill/rules/error_handling.md",
+      "estimated_tokens": 616,
+      "load_condition": "on_demand"
+    },
+    {
+      "path": ".skill/scripts/graphify.ps1",
+      "estimated_tokens": 557,
+      "load_condition": "on_demand"
+    },
+    {
+      "path": ".skill/scripts/resources.py",
+      "estimated_tokens": 891,
+      "load_condition": "on_demand"
+    }
+  ],
+  "total_estimated_tokens": 124837,
+  "always_load_estimated_tokens": 2417
+}

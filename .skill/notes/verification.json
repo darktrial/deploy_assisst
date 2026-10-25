@@ -1,0 +1,149 @@
+{
+  "timestamp": "2026-10-25T10:08:52.813Z",
+  "node": "v22.14.0",
+  "platform": "win32",
+  "status": "passed",
+  "sourceHashes": {
+    "background.js": "11527942f2b52c60472f5b698a18c928de1985af9377b30f51844b74f437bcd2",
+    "chrome-extension/background.js": "7ae159bd13a5022a15b4a8e4b00d1cf1e76a076bca29906d05a49410dd28a969",
+    "chrome-extension/controller.js": "a9a8906e3faea999201bb288960140fb97395a3aff5972ce478429d36ccccc39",
+    "chrome-extension/core.mjs": "fbd71ef40c41b2f2e5967f2b5aa69d2a132f7d91779fd809523a1a3a5fec5646",
+    "chrome-extension/core.test.mjs": "b937cf11c2a63f32a23490621270547e728755caa2bdb42e0f4c06edb33236c8",
+    "chrome-extension/native-client.mjs": "44dd83964dbce2bcf6b19edd35e8e7c247e06a6f129276933ab73b682998c2ff",
+    "chrome-extension/native-page.mjs": "1b12d966a4e7d97e4b84a56e1d37da2023b779d05667cdc4f9ae94b623aba38a",
+    "chrome-extension/native-runner.mjs": "54a4c1b235d060ab68d8cf40cdbc7cb7c3bd997e59725177962ebf50f0564ca2",
+    "chrome-extension/native.test.mjs": "c426a37cce7372d8f02caeae2037874caa0f5d5af1f5ca66d9c618bc66ed0174",
+    "chrome-extension/observer.mjs": "7710204d21011835881b1ab3ae7513931e3f223036cca7ec985e6d4b32fcced9",
+    "chrome-extension/observer.test.mjs": "fa1a33860b3798e7fd89bc0ab25ca66ecfe55a352a8609f638ab95b0ba179b72",
+    "hotkey.js": "ab86696cb902f37f2cb17a4e46f0b624ebc89ce69af0d7a4a9d45d6e6779b8e2",
+    "hotkey.test.mjs": "ab3198a19524db8e1bcfa623c2efb4f6abfa1640dbd145072452cf75908ce100",
+    "native-client.mjs": "44dd83964dbce2bcf6b19edd35e8e7c247e06a6f129276933ab73b682998c2ff",
+    "native-page.mjs": "1b12d966a4e7d97e4b84a56e1d37da2023b779d05667cdc4f9ae94b623aba38a",
+    "native-runner.mjs": "21dea7f45f99e957ac45485c8c7753377f782519133e9dfe177389c577fdd0a9",
+    "native.test.mjs": "f909228048af0566dc598f659e869b5a5dda626e364ca344427a344a313126a4",
+    "one-click.mjs": "e039f859547817ee2d38dde69c26b34f2153f85ac16a9668692c26ca1af266ac",
+    "one-click.test.mjs": "6d0ac1cd51790367eb089d660024cd839ff4dce53b910daab4b573a8c7878df5",
+    "status.js": "63729d0c9110e1a37c46e862577617ac863d4bc5f181a0d1575d20989d3a67df",
+    "tools/verify.mjs": "5aff91a22d8c861f31a995d0c12b842835b7e1fb62085a161e32fe1f0e5e3495",
+    "manifest.json": "b2a82e47a76bfe77413edc098151d59a8fc945aa0fb89fc87dcd7fbceaa3b63a",
+    "native-profile.json": "e0f73cb6bc71cd7f52a50400d9e33185759779f2a7cd822c3cded062b9367d01",
+    "chrome-extension/manifest.json": "e08456e417ea6cc8dd7dee1e9fa76c21b455e9e3ebc9637e93f7ba2b1604594c",
+    "chrome-extension/native-profile.json": "e0f73cb6bc71cd7f52a50400d9e33185759779f2a7cd822c3cded062b9367d01"
+  },
+  "commands": [
+    {
+      "command": "node --check background.js",
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": "node --check chrome-extension/background.js",
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": "node --check chrome-extension/controller.js",
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": "node --check chrome-extension/core.mjs",
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": "node --check chrome-extension/core.test.mjs",
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": "node --check chrome-extension/native-client.mjs",
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": "node --check chrome-extension/native-page.mjs",
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": "node --check chrome-extension/native-runner.mjs",
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": "node --check chrome-extension/native.test.mjs",
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": "node --check chrome-extension/observer.mjs",
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": "node --check chrome-extension/observer.test.mjs",
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": "node --check hotkey.js",
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": "node --check hotkey.test.mjs",
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": "node --check native-client.mjs",
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": "node --check native-page.mjs",
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": "node --check native-runner.mjs",
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": "node --check native.test.mjs",
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": "node --check one-click.mjs",
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": "node --check one-click.test.mjs",
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": "node --check status.js",
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": "node --check tools/verify.mjs",
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": "node --test --test-reporter=tap chrome-extension/core.test.mjs chrome-extension/native.test.mjs chrome-extension/observer.test.mjs hotkey.test.mjs native.test.mjs one-click.test.mjs",
+      "exitCode": 0,
+      "output": "TAP version 13\n# Subtest: Recorder import removes secrets and requires calibration\nok 1 - Recorder import removes secrets and requires calibration\n  ---\n  duration_ms: 4.1952\n  ...\n# Subtest: boost clicks require explicit opt-in; duplicate clicks are not collapsed\nok 2 - boost clicks require explicit opt-in; duplicate clicks are not collapsed\n  ---\n  duration_ms: 0.8228\n  ...\n# Subtest: invalid coordinates, delays and viewport metadata fail closed\nok 3 - invalid coordinates, delays and viewport metadata fail closed\n  ---\n  duration_ms: 2.3606\n  ...\n# Subtest: viewport changes and non-game pages are rejected\nok 4 - viewport changes and non-game pages are rejected\n  ---\n  duration_ms: 1.7294\n  ...\n# Subtest: background sends clicks, stops on focus loss, and releases mouse on cancellation\n    # Subtest: observer API locks automation, accepts shortcuts and exports on stop\n    ok 1 - observer API locks automation, accepts shortcuts and exports on stop\n      ---\n      duration_ms: 14.9256\n      ...\n    # Subtest: calibration captures the exact viewport without sending input\n    ok 2 - calibration captures the exact viewport without sending input\n      ---\n      duration_ms: 2.1728\n      ...\n    # Subtest: focus loss prevents the next step\n    ok 3 - focus loss prevents the next step\n      ---\n      duration_ms: 3051.923\n      ...\n    # Subtest: stop during mouse press still releases and prevents second double click\n    ok 4 - stop during mouse press still releases and prevents second double click\n      ---\n      duration_ms: 3059.3356\n      ...\n    1..4\nok 5 - background sends clicks, stops on focus loss, and releases mouse on cancellation\n  ---\n  duration_ms: 6155.889\n  ...\n# Subtest: native sequence correlates only the newly created queue and acknowledges each speedup\nok 6 - native sequence correlates only the newly created queue and acknowledges each speedup\n  ---\n  duration_ms: 8.7458\n  ...\n# Subtest: native timeout never retries dispatch or sends speedups\nok 7 - native timeout never retries dispatch or sends speedups\n  ---\n  duration_ms: 7.7994\n  ...\n# Subtest: ambiguous new marches and cancellation stop before speedup\nok 8 - ambiguous new marches and cancellation stop before speedup\n  ---\n  duration_ms: 1.3645\n  ...\n# Subtest: a new march that has already arrived is confirmed without consuming speedups\nok 9 - a new march that has already arrived is confirmed without consuming speedups\n  ---\n  duration_ms: 1.0956\n  ...\n# Subtest: stale target, unavailable inventory and invalid parameters fail before mutation\nok 10 - stale target, unavailable inventory and invalid parameters fail before mutation\n  ---\n  duration_ms: 1.4585\n  ...\n# Subtest: page bridge reads typed presets, queues and inventory without invoking a native method\nok 11 - page bridge reads typed presets, queues and inventory without invoking a native method\n  ---\n  duration_ms: 8.1437\n  ...\n# Subtest: page bridge invokes only matched original collection and boost methods\nok 12 - page bridge invokes only matched original collection and boost methods\n  ---\n  duration_ms: 2.2572\n  ...\n# Subtest: page bridge refuses incorrect fingerprints, method pointers and occupied resource points\nok 13 - page bridge refuses incorrect fingerprints, method pointers and occupied resource points\n  ---\n  duration_ms: 23.9771\n  ...\n# Subtest: page bridge applies a preset and uses the original Go handler with target checks\nok 14 - page bridge applies a preset and uses the original Go handler with target checks\n  ---\n  duration_ms: 3.7889\n  ...\n# Subtest: CDP client routes frame calls to the unique default Unity context and handles exceptions\nok 15 - CDP client routes frame calls to the unique default Unity context and handles exceptions\n  ---\n  duration_ms: 2.9511\n  ...\n# Subtest: URLs and recognized text credentials are removed while gameplay IDs remain\nok 16 - URLs and recognized text credentials are removed while gameplay IDs remain\n  ---\n  duration_ms: 5.2932\n  ...\n# Subtest: binary capture is optional, base64 is preserved and truncation is explicit\nok 17 - binary capture is optional, base64 is preserved and truncation is explicit\n  ---\n  duration_ms: 0.4954\n  ...\n# Subtest: manual phases correlate outbound and inbound frames and child sessions\nok 18 - manual phases correlate outbound and inbound frames and child sessions\n  ---\n  duration_ms: 7.0552\n  ...\n# Subtest: HTTP bodies are retrieved after loading, stripped of secrets and ignore static assets\nok 19 - HTTP bodies are retrieved after loading, stripped of secrets and ignore static assets\n  ---\n  duration_ms: 2.2863\n  ...\n# Subtest: nested iframe and worker targets enable Network in the correct flat session\nok 20 - nested iframe and worker targets enable Network in the correct flat session\n  ---\n  duration_ms: 1.4134\n  ...\n# Subtest: capture cap automatically detaches and leaves the record exportable\nok 21 - capture cap automatically detaches and leaves the record exportable\n  ---\n  duration_ms: 0.866\n  ...\n# Subtest: detach preserves data; clear removes it and repeated stop is idempotent\nok 22 - detach preserves data; clear removes it and repeated stop is idempotent\n  ---\n  duration_ms: 1.1425\n  ...\n# Subtest: automatic timeout stops observation\nok 23 - automatic timeout stops observation\n  ---\n  duration_ms: 35.7577\n  ...\n# Subtest: capture failures and persistence errors remain visible\nok 24 - capture failures and persistence errors remain visible\n  ---\n  duration_ms: 7.0949\n  ...\n# Subtest: single F8 runs once; repeats, typing, synthetic keys and modifiers are ignored\nok 25 - single F8 runs once; repeats, typing, synthetic keys and modifiers are ignored\n  ---\n  duration_ms: 11.6413\n  ...\n# Subtest: native sequence correlates only the newly created queue and acknowledges each speedup\nok 26 - native sequence correlates only the newly created queue and acknowledges each speedup\n  ---\n  duration_ms: 11.0987\n  ...\n# Subtest: native timeout never retries dispatch or sends speedups\nok 27 - native timeout never retries dispatch or sends speedups\n  ---\n  duration_ms: 7.9912\n  ...\n# Subtest: ambiguous new marches and cancellation stop before speedup\nok 28 - ambiguous new marches and cancellation stop before speedup\n  ---\n  duration_ms: 2.1726\n  ...\n# Subtest: a new march that has already arrived is confirmed without consuming speedups\nok 29 - a new march that has already arrived is confirmed without consuming speedups\n  ---\n  duration_ms: 0.8908\n  ...\n# Subtest: stale target, unavailable inventory and invalid parameters fail before mutation\nok 30 - stale target, unavailable inventory and invalid parameters fail before mutation\n  ---\n  duration_ms: 2.5423\n  ...\n# Subtest: page bridge reads typed presets, queues and inventory without invoking a native method\nok 31 - page bridge reads typed presets, queues and inventory without invoking a native method\n  ---\n  duration_ms: 10.1192\n  ...\n# Subtest: page bridge invokes only matched original collection and boost methods\nok 32 - page bridge invokes only matched original collection and boost methods\n  ---\n  duration_ms: 2.8287\n  ...\n# Subtest: page bridge refuses incorrect fingerprints, method pointers and occupied resource points\nok 33 - page bridge refuses incorrect fingerprints, method pointers and occupied resource points\n  ---\n  duration_ms: 29.0965\n  ...\n# Subtest: page bridge applies a preset and uses the original Go handler with target checks\nok 34 - page bridge applies a preset and uses the original Go handler with target checks\n  ---\n  duration_ms: 4.128\n  ...\n# Subtest: CDP client routes frame calls to the unique default Unity context and handles exceptions\nok 35 - CDP client routes frame calls to the unique default Unity context and handles exceptions\n  ---\n  duration_ms: 4.229\n  ...\n# Subtest: one click selects slot one, dispatches once, caps boosts at two and confirms gathering\nok 36 - one click selects slot one, dispatches once, caps boosts at two and confirms gathering\n  ---\n  duration_ms: 14.2428\n  ...\n# Subtest: zero or one available item still dispatches and waits for arrival\nok 37 - zero or one available item still dispatches and waits for arrival\n  ---\n  duration_ms: 2.9992\n  ...\n# Subtest: arrival timeout never sends additional speedups or dispatches\nok 38 - arrival timeout never sends additional speedups or dispatches\n  ---\n  duration_ms: 15.9385\n  ...\n# Subtest: missing queue and stop during arrival wait never report success\nok 39 - missing queue and stop during arrival wait never report success\n  ---\n  duration_ms: 4.3252\n  ...\n# Subtest: missing first preset or selected target fails before mutation; URL allowlist is exact\nok 40 - missing first preset or selected target fails before mutation; URL allowlist is exact\n  ---\n  duration_ms: 1.846\n  ...\n# Subtest: toolbar handler rejects other pages, ignores duplicate clicks and detaches on connection failure\nok 41 - toolbar handler rejects other pages, ignores duplicate clicks and detaches on connection failure\n  ---\n  duration_ms: 36.589\n  ...\n1..41\n# tests 45\n# suites 0\n# pass 45\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 6318.6604\n"
+    }
+  ],
+  "limitations": [
+    "Node fixtures and syntax only; no installed extension or live game run.",
+    "Coverity not run: no configured analyzer or capture target."
+  ]
+}

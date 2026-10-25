@@ -1,0 +1,89 @@
+{
+  "name": "Army preset 1（請校準）",
+  "steps": [
+    {
+      "name": "選建築物（手動，已停用）",
+      "enabled": false,
+      "kind": "normal",
+      "type": "click",
+      "delay": 1500,
+      "sourceX": 281,
+      "sourceY": 209,
+      "x": null,
+      "y": null,
+      "viewport": null
+    },
+    {
+      "name": "錄製步驟 2（待確認）",
+      "enabled": true,
+      "kind": "normal",
+      "type": "click",
+      "delay": 1500,
+      "sourceX": 605,
+      "sourceY": 749,
+      "x": null,
+      "y": null,
+      "viewport": null
+    },
+    {
+      "name": "錄製步驟 3（待確認）",
+      "enabled": true,
+      "kind": "normal",
+      "type": "click",
+      "delay": 1500,
+      "sourceX": 196,
+      "sourceY": 271,
+      "x": null,
+      "y": null,
+      "viewport": null
+    },
+    {
+      "name": "錄製步驟 4（待確認）",
+      "enabled": true,
+      "kind": "normal",
+      "type": "click",
+      "delay": 1500,
+      "sourceX": 895,
+      "sourceY": 738,
+      "x": null,
+      "y": null,
+      "viewport": null
+    },
+    {
+      "name": "錄製步驟 5（待確認）",
+      "enabled": true,
+      "kind": "normal",
+      "type": "click",
+      "delay": 1500,
+      "sourceX": 711,
+      "sourceY": 846,
+      "x": null,
+      "y": null,
+      "viewport": null
+    },
+    {
+      "name": "加速道具 1",
+      "enabled": true,
+      "kind": "boost",
+      "type": "doubleClick",
+      "delay": 1500,
+      "sourceX": 906,
+      "sourceY": 656,
+      "x": null,
+      "y": null,
+      "viewport": null
+    },
+    {
+      "name": "加速道具 2",
+      "enabled": true,
+      "kind": "boost",
+      "type": "doubleClick",
+      "delay": 1500,
+      "sourceX": 906,
+      "sourceY": 654,
+      "x": null,
+      "y": null,
+      "viewport": null
+    }
+  ]
+}

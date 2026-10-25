@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "GT 一鍵出征",
+  "version": "1.0.3",
+  "description": "選好資源點後點圖示，套用第一組預設列隊、出征，最多使用兩個行軍加速道具。",
+  "minimum_chrome_version": "125",
+  "permissions": ["storage", "debugger"],
+  "host_permissions": ["https://game.gtarcade.com/*", "https://logins-gotpc.gtarcade.com/*"],
+  "content_scripts": [{
+    "matches": ["https://game.gtarcade.com/game*", "https://logins-gotpc.gtarcade.com/*"],
+    "js": ["hotkey.js"], "all_frames": true, "run_at": "document_start"
+  }],
+  "background": {"service_worker": "background.js", "type": "module"},
+  "action": {"default_title": "F8：第一組列隊 → 出征 → 加速（最多 2 個）"},
+  "options_ui": {"page": "status.html", "open_in_tab": true},
+  "commands": {
+    "_execute_action": {"suggested_key": {"default": "Alt+Shift+G"}},
+    "stop": {"suggested_key": {"default": "Alt+Shift+X"}, "description": "停止一鍵出征的後續操作"}
+  }
+}

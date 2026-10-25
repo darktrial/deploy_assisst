@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GT 採集助手</title><link rel="stylesheet" href="style.css"></head>
+<body><main>
+<header><div><h1>GT 採集助手</h1><p>先手動選好建築物，再執行 army preset → 出發 → 加速。</p></div><button id="stop" class="danger">停止 · Alt+Shift+S</button></header>
+<section class="toolbar"><label>遊戲分頁 <select id="tabs"></select></label><button id="refresh">重新搜尋</button><button id="capture">擷取遊戲畫面</button></section>
+<section class="observer native">
+<h2>原生採集模式 · 不用座標</h2>
+<p>手動選取空的資源建築物，保留資源資訊視窗，按「讀取遊戲狀態」。選擇 preset 後，可沿用遊戲原本的採集、出征與加速函式執行一次。</p>
+<div class="toolbar"><button id="nativeProbe">讀取遊戲狀態</button><label>Army preset <select id="nativePreset"></select></label><label>加速道具 10303 <select id="nativeBoosts"><option value="0">不使用</option><option value="1">使用 1 次</option><option value="2">最多使用 2 次</option></select></label><button id="nativeRun" class="primary" disabled>原生執行一次</button></div>
+<pre id="nativeStatus">尚未讀取遊戲狀態。支援版本：2.81.0。</pre>
+<p class="hint">此模式會出征；選用加速會消耗道具。只處理一般空資源點，沿用遊戲的檢查與確認提示。版本指紋不符會停止；伺服器狀態未更新時停止，指令不會重送。Alt+Shift+S 可停止後續步驟。</p>
+</section>
+<section class="observer">
+<h2>通訊觀察模式</h2>
+<p>先登入遊戲並選好建築物，再開始觀察。等待約 3 秒作為背景基準；每次操作前先標記，操作後等回應約 3 秒。全程由你手動操作。</p>
+<div class="toolbar"><label><input id="includeBinary" type="checkbox" checked>包含二進位訊息內容（供協定分析）</label><button id="observeStart" class="primary">開始觀察</button><button id="observeStop">停止觀察</button><button id="observeExport">匯出通訊 JSON</button><button id="observeClear">清除紀錄</button></div>
+<p class="hint">不記錄 headers／cookies，網址移除查詢參數。文字中的已知憑證欄位會遮蔽；二進位與不明格式內容可能仍含帳號或登入資料。檔案只在本機匯出。新觀察會取代上一份紀錄。</p>
+<div class="toolbar"><label>操作備註 <input id="observeNote" type="text" maxlength="160" placeholder="例如 preset 2／50% 加速 × 1"></label><button id="markPreset">標記選 preset · Alt+Shift+1</button><button id="markMarch">標記出征 · Alt+Shift+2</button><button id="markBoost">標記加速 · Alt+Shift+3</button><button id="markDone">標記操作完成</button></div>
+<pre id="observeStatus" aria-live="polite">尚未開始通訊觀察。</pre>
+<p class="hint">最多 10 分鐘、8000 筆或約 6 MiB；達上限會自動停止。觀察時可切換助手與遊戲視窗。停止後請匯出，紀錄暫存於目前 Chrome 工作階段。</p>
+</section>
+<details><summary>座標操作與校準（原有功能）</summary>
+<section class="toolbar"><label>Army preset 流程 <select id="profiles"></select></label><button id="duplicate">另存新 preset</button><button id="rename">重新命名</button><button id="export">匯出流程</button><label class="file">匯入流程／Recorder JSON<input id="import" type="file" accept=".json,application/json"></label></section>
+<p class="hint">每一步：先手動把遊戲切到該步驟的畫面 → 擷取 → 選取該列「校準」→ 點截圖中的按鈕。原錄製座標是 canvas 內座標，僅供參考，不能直接執行。第一步選建築物已停用。</p>
+<section class="table-wrap"><table><thead><tr><th>啟用</th><th>步驟名稱</th><th>點擊</th><th>等待前置 ms</th><th>加速道具</th><th>位置</th><th></th></tr></thead><tbody id="steps"></tbody></table></section>
+<div class="toolbar"><button id="add">新增步驟</button><label><input id="allowBoost" type="checkbox">本次包含加速步驟（可能消耗道具）</label><button id="run" class="primary">執行一次</button></div>
+<p id="calibration" role="status">尚未擷取畫面。</p>
+<div id="shotWrap"><img id="shot" alt="遊戲截圖，選取校準步驟後點擊目標位置" hidden><span id="marker" hidden>＋</span></div>
+</details>
+<pre id="status" aria-live="polite">待命</pre>
+<footer>請關閉遊戲分頁的 DevTools。觀察模式不會自動操作，不能與截圖或座標流程同時執行。座標流程執行時維持遊戲在前景；切換分頁或視窗會在下一次點擊前停止。</footer>
+</main><script type="module" src="controller.js"></script></body></html>

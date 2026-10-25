@@ -1,0 +1,15 @@
+{
+  "build": "2.81.0_c2cae856e7",
+  "wasmBytes": 113960090,
+  "wasmSha256": "5f4dd34de793e3b0ff89c390c904dcc7622b394f20779ed70be1fa2c1f6d0667",
+  "types": {"GotGame":9136120,"WarHallPlugin":9196084,"QueuePlugin":9150732},
+  "classLayout": {"name":8,"namespace":12,"methods":76,"staticFields":92,"methodCount":168},
+  "methods": {
+    "collect":{"class":"ResourcesInfoWindow","name":"OnBtnCollection","args":1,"arity":3,"slot":64689},
+    "clear":{"class":"SendtrooppanelWindow","name":"ClearCommanderBtn","args":0,"arity":2,"slot":111672},
+    "preset":{"class":"SendtrooppanelWindow","name":"setPerInfoShow","args":3,"arity":5,"slot":111569},
+    "dispatch":{"class":"SendtrooppanelWindow","name":"OnClickGoBtnHandler","args":1,"arity":3,"slot":111659},
+    "boost":{"class":"QueuePlugin","name":"SendSpeedUpQueueRequest","args":3,"arity":5,"slot":47986}
+  },
+  "allowedBoostItems":[10303]
+}

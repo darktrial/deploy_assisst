@@ -1,0 +1,2 @@
+Shortest path (2 hops):
+  start() --calls [EXTRACTED]--> runOneClick() --calls [EXTRACTED]--> runNative()

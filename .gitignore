@@ -1,0 +1,11 @@
+dist/
+research/capture/*
+!research/capture/native-live-test-2026-10-25.json
+research/tools/
+**/__pycache__/
+*.pyc
+.venv/
+graphify-out/cache/
+graphify-out/.graphify*
+graphify-out/graph.html
+graphify-out/GRAPH_TREE.html

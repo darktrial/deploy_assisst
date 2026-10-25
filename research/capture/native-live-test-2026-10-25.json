@@ -1,0 +1,43 @@
+{
+  "format": "gt-native-live-test-v1",
+  "startedAt": "2026-10-25T02:04:44.332Z",
+  "endedAt": "2026-10-25T02:04:47.512Z",
+  "executionSurface": "Authorized HTTPS game frame, CDP native entry calls; extension controller URL was blocked by browser tool policy and was not accessed",
+  "build": "2.81.0_c2cae856e7",
+  "verifiedWasmSha256": "5f4dd34de793e3b0ff89c390c904dcc7622b394f20779ed70be1fa2c1f6d0667",
+  "targetGrid": 349641,
+  "preset": {"pos": 1, "name": "Spear", "soldiers": "1182345"},
+  "dispatchesIssued": 1,
+  "marchId": "4899549206363499",
+  "queueId": "5783738",
+  "initialMarch": {"mainType": 11, "subType": 1, "start": 1792893884, "finish": 1792893914},
+  "boostItemId": 10303,
+  "authorizedMaximumBoostItems": 2,
+  "actualBoostItemsUsed": 2,
+  "inventoryBefore": 2656,
+  "boostAcknowledgements": [
+    {"number": 1, "inventoryAfter": 2655, "cumulativeSpeedupSeconds": 22, "queueSubType": 1},
+    {"number": 2, "inventoryAfter": 2654, "cumulativeSpeedupSeconds": 28, "queueSubType": 1}
+  ],
+  "inventoryAfter": 2654,
+  "finalQueue": {"mainType": 11, "subType": 7, "start": 1792893886, "finish": 1792897538},
+  "finalState": "collecting",
+  "success": true,
+  "serverResponseEvidence": [
+    {"sequence": 1985, "messageId": 20002, "type": "WorldMarchResponse", "cdpTimestamp": 222224.21778},
+    {"sequence": 2033, "messageId": 10702, "type": "SCUpdateItem", "cdpTimestamp": 222224.593836},
+    {"sequence": 2038, "messageId": 10401, "type": "SpeedUpQueueResponse", "cdpTimestamp": 222224.626269},
+    {"sequence": 2105, "messageId": 10702, "type": "SCUpdateItem", "cdpTimestamp": 222224.855414},
+    {"sequence": 2110, "messageId": 10401, "type": "SpeedUpQueueResponse", "cdpTimestamp": 222224.876963},
+    {"sequence": 2177, "messageId": 9004, "type": "WorldMarchNotify", "cdpTimestamp": 222226.666167},
+    {"sequence": 2178, "messageId": 10400, "type": "QueueNotify", "cdpTimestamp": 222226.666251}
+  ],
+  "notes": [
+    "Resource/preset had already been selected using the original native methods in the prior validation.",
+    "Dispatch and both speedups used original game methods, not coordinates or replayed packets.",
+    "Each speedup was issued once and awaited inventory plus queue-state acknowledgement before the next.",
+    "The collecting queue resets its speedup accumulator to zero; 28 seconds was confirmed before transition.",
+    "The original pre-existing collecting march was unchanged by the test.",
+    "This verifies the game-native dispatch/speedup path; the installed extension controller click and connection lifecycle were not exercised."
+  ]
+}
